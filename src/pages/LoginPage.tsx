@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { authApi } from '@/api/auth.api'
 import { useAuthStore } from '@/stores/auth.store'
+import { Logo } from '@/components/shared/Logo'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -17,11 +18,19 @@ export default function LoginPage() {
 
     try {
       const data = await authApi.login({ email, password })
+      // API retorna clinicId, normalizar para id
+      const clinics = data.clinics.map((c: Record<string, unknown>) => ({
+        id: (c.clinicId || c.id) as string,
+        name: c.name as string,
+        tradeName: c.tradeName as string | undefined,
+        role: c.role as string,
+      }))
+
       setAuth({
         accessToken: data.accessToken,
         refreshToken: data.refreshToken,
         user: data.user,
-        clinics: data.clinics,
+        clinics,
       })
 
       if (data.clinics.length > 1) {
@@ -39,9 +48,8 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-muted p-4">
       <div className="w-full max-w-md bg-card rounded-2xl shadow-lg p-8">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-primary">PetCore</h1>
-          <p className="text-muted-foreground mt-2">Sistema de Gestão Veterinária</p>
+        <div className="flex flex-col items-center mb-8">
+          <Logo size="xl" showText={true} />
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">

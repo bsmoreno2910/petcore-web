@@ -1,33 +1,157 @@
+import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
+import { Logo } from '@/components/shared/Logo'
 import {
   LayoutDashboard, Users, PawPrint, Calendar, FileText, Bed, FlaskConical,
   Package, ArrowLeftRight, ClipboardList, DollarSign, Building2,
-  BarChart3, Shield, Settings, UserCircle, Stethoscope,
+  BarChart3, Shield, Settings, UserCircle, Stethoscope, ChevronDown,
+  Clipboard, Warehouse, Banknote, Cog,
 } from 'lucide-react'
 import { useAuthStore } from '@/stores/auth.store'
 import { useUiStore } from '@/stores/ui.store'
 import { hasPermission } from '@/lib/permissions'
 import { cn } from '@/lib/utils'
 
-const navItems = [
+interface NavItem {
+  label: string
+  icon: React.ElementType
+  to: string
+  permission: string | null
+}
+
+interface NavGroup {
+  label: string
+  icon: React.ElementType
+  items: NavItem[]
+}
+
+type NavEntry = NavItem | NavGroup
+
+function isGroup(entry: NavEntry): entry is NavGroup {
+  return 'items' in entry
+}
+
+const navigation: NavEntry[] = [
   { label: 'Dashboard', icon: LayoutDashboard, to: '/', permission: null },
-  { label: 'Tutores', icon: Users, to: '/tutors', permission: 'tutors.manage' },
-  { label: 'Pacientes', icon: PawPrint, to: '/patients', permission: 'patients.manage' },
-  { label: 'Agenda', icon: Calendar, to: '/agenda', permission: 'agenda.view' },
-  { label: 'Prontuários', icon: FileText, to: '/medical-records', permission: 'medical.view' },
-  { label: 'Internações', icon: Bed, to: '/hospitalizations', permission: 'hospitalization.manage' },
-  { label: 'Exames', icon: FlaskConical, to: '/exams', permission: 'exams.view' },
-  { label: 'Produtos', icon: Package, to: '/products', permission: 'stock.view' },
-  { label: 'Movimentações', icon: ArrowLeftRight, to: '/movements', permission: 'stock.operate' },
-  { label: 'Pedidos', icon: ClipboardList, to: '/orders', permission: 'stock.operate' },
-  { label: 'Financeiro', icon: DollarSign, to: '/financial', permission: 'financial.view' },
-  { label: 'Centros de Custo', icon: Building2, to: '/cost-centers', permission: 'costs.view' },
-  { label: 'Relatórios', icon: BarChart3, to: '/reports', permission: 'reports.export' },
-  { label: 'Usuários', icon: UserCircle, to: '/users', permission: 'users.manage' },
-  { label: 'Clínicas', icon: Stethoscope, to: '/clinics', permission: 'clinics.manage' },
-  { label: 'Auditoria', icon: Shield, to: '/audit', permission: 'audit.view' },
-  { label: 'Configurações', icon: Settings, to: '/settings', permission: null },
+
+  {
+    label: 'Cadastros',
+    icon: Clipboard,
+    items: [
+      { label: 'Tutores', icon: Users, to: '/tutors', permission: 'tutors.manage' },
+      { label: 'Pacientes', icon: PawPrint, to: '/patients', permission: 'patients.manage' },
+    ],
+  },
+
+  {
+    label: 'Atendimento',
+    icon: Stethoscope,
+    items: [
+      { label: 'Agenda', icon: Calendar, to: '/agenda', permission: 'agenda.view' },
+      { label: 'Prontuários', icon: FileText, to: '/medical-records', permission: 'medical.view' },
+      { label: 'Internações', icon: Bed, to: '/hospitalizations', permission: 'hospitalization.manage' },
+      { label: 'Exames', icon: FlaskConical, to: '/exams', permission: 'exams.view' },
+    ],
+  },
+
+  {
+    label: 'Estoque',
+    icon: Warehouse,
+    items: [
+      { label: 'Produtos', icon: Package, to: '/products', permission: 'stock.view' },
+      { label: 'Movimentações', icon: ArrowLeftRight, to: '/movements', permission: 'stock.operate' },
+      { label: 'Pedidos', icon: ClipboardList, to: '/orders', permission: 'stock.operate' },
+    ],
+  },
+
+  {
+    label: 'Financeiro',
+    icon: Banknote,
+    items: [
+      { label: 'Transações', icon: DollarSign, to: '/financial', permission: 'financial.view' },
+      { label: 'Centros de Custo', icon: Building2, to: '/cost-centers', permission: 'costs.view' },
+      { label: 'Relatórios', icon: BarChart3, to: '/reports', permission: 'reports.export' },
+    ],
+  },
+
+  {
+    label: 'Administração',
+    icon: Cog,
+    items: [
+      { label: 'Usuários', icon: UserCircle, to: '/users', permission: 'users.manage' },
+      { label: 'Clínicas', icon: Stethoscope, to: '/clinics', permission: 'clinics.manage' },
+      { label: 'Auditoria', icon: Shield, to: '/audit', permission: 'audit.view' },
+      { label: 'Configurações', icon: Settings, to: '/settings', permission: null },
+    ],
+  },
 ]
+
+function SidebarItem({ item, collapsed }: { item: NavItem; collapsed: boolean }) {
+  return (
+    <NavLink
+      to={item.to}
+      className={({ isActive }) =>
+        cn(
+          'flex items-center gap-3 px-4 py-2 text-sm transition-colors rounded-md mx-2',
+          'hover:bg-secondary',
+          isActive
+            ? 'bg-accent/10 text-accent font-medium'
+            : 'text-sidebar-foreground',
+          collapsed && 'justify-center px-2 mx-1',
+        )
+      }
+    >
+      <item.icon size={18} />
+      {!collapsed && <span>{item.label}</span>}
+    </NavLink>
+  )
+}
+
+function SidebarGroup({ group, collapsed, role }: { group: NavGroup; collapsed: boolean; role: string | null }) {
+  const [open, setOpen] = useState(true)
+
+  const visibleItems = group.items.filter(
+    (item) => !item.permission || hasPermission(role, item.permission),
+  )
+
+  if (visibleItems.length === 0) return null
+
+  if (collapsed) {
+    return (
+      <div className="py-1">
+        {visibleItems.map((item) => (
+          <SidebarItem key={item.to} item={item} collapsed />
+        ))}
+      </div>
+    )
+  }
+
+  return (
+    <div className="py-1">
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex items-center justify-between w-full px-4 py-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors"
+      >
+        <div className="flex items-center gap-2">
+          <group.icon size={14} />
+          <span>{group.label}</span>
+        </div>
+        <ChevronDown
+          size={14}
+          className={cn('transition-transform', open ? '' : '-rotate-90')}
+        />
+      </button>
+
+      {open && (
+        <div className="space-y-0.5">
+          {visibleItems.map((item) => (
+            <SidebarItem key={item.to} item={item} collapsed={false} />
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
 
 export function Sidebar() {
   const role = useAuthStore((s) => s.getRole())
@@ -40,37 +164,27 @@ export function Sidebar() {
         sidebarCollapsed ? 'w-16' : 'w-64',
       )}
     >
-      <div className="h-16 flex items-center justify-center border-b border-border px-4">
-        {!sidebarCollapsed && (
-          <span className="text-xl font-bold text-primary">PetCore</span>
-        )}
-        {sidebarCollapsed && (
-          <span className="text-xl font-bold text-primary">P</span>
-        )}
+      <div className="h-16 flex items-center justify-center border-b border-border px-3">
+        <Logo size={sidebarCollapsed ? 'sm' : 'md'} showText={!sidebarCollapsed} />
       </div>
 
-      <nav className="flex-1 overflow-y-auto py-2">
-        {navItems
-          .filter((item) => !item.permission || hasPermission(role, item.permission))
-          .map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              className={({ isActive }) =>
-                cn(
-                  'flex items-center gap-3 px-4 py-2.5 text-sm transition-colors',
-                  'hover:bg-secondary',
-                  isActive
-                    ? 'bg-accent/10 text-accent font-medium border-r-2 border-accent'
-                    : 'text-sidebar-foreground',
-                  sidebarCollapsed && 'justify-center px-2',
-                )
-              }
-            >
-              <item.icon size={20} />
-              {!sidebarCollapsed && <span>{item.label}</span>}
-            </NavLink>
-          ))}
+      <nav className="flex-1 overflow-y-auto py-2 space-y-1">
+        {navigation.map((entry, idx) => {
+          if (isGroup(entry)) {
+            return (
+              <SidebarGroup
+                key={entry.label}
+                group={entry}
+                collapsed={sidebarCollapsed}
+                role={role}
+              />
+            )
+          }
+
+          if (entry.permission && !hasPermission(role, entry.permission)) return null
+
+          return <SidebarItem key={entry.to} item={entry} collapsed={sidebarCollapsed} />
+        })}
       </nav>
     </aside>
   )
