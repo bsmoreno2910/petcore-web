@@ -154,65 +154,78 @@ function SidebarGroup({ group, collapsed, role, onNavigate }: { group: NavGroup;
   )
 }
 
+function SidebarContent({ collapsed, role, onNavigate }: { collapsed: boolean; role: string | null; onNavigate?: () => void }) {
+  return (
+    <nav className="flex-1 overflow-y-auto py-2 space-y-1">
+      {navigation.map((entry) => {
+        if (isGroup(entry)) {
+          return (
+            <SidebarGroup
+              key={entry.label}
+              group={entry}
+              collapsed={collapsed}
+              role={role}
+              onNavigate={onNavigate}
+            />
+          )
+        }
+
+        if (entry.permission && !hasPermission(role, entry.permission)) return null
+
+        return (
+          <SidebarItem
+            key={entry.to}
+            item={entry}
+            collapsed={collapsed}
+            onNavigate={onNavigate}
+          />
+        )
+      })}
+    </nav>
+  )
+}
+
 export function Sidebar() {
   const role = useAuthStore((s) => s.getPerfil())
   const { sidebarCollapsed, sidebarOpen, setSidebarOpen } = useUiStore()
 
-  // On mobile, close sidebar after navigating
   const handleMobileNavigate = () => {
-    if (window.innerWidth < 768) {
-      setSidebarOpen(false)
-    }
+    setSidebarOpen(false)
   }
 
   return (
-    <aside
-      className={cn(
-        'h-screen bg-sidebar border-r border-border flex flex-col transition-all duration-300 shrink-0',
-        // Desktop: normal sidebar behavior
-        'hidden md:flex',
-        sidebarCollapsed ? 'md:w-16' : 'md:w-64',
-        // Mobile: overlay sidebar
-        sidebarOpen && 'fixed inset-y-0 left-0 z-50 flex w-72',
-      )}
-    >
-      <div className="h-16 flex items-center justify-between border-b border-border px-3">
-        <Logo size={sidebarCollapsed ? 'sm' : 'md'} showText={!sidebarCollapsed} />
-        {/* Mobile close button */}
-        <button
-          onClick={() => setSidebarOpen(false)}
-          className="p-1.5 rounded-lg hover:bg-secondary transition-colors md:hidden"
-        >
-          <X size={18} />
-        </button>
-      </div>
+    <>
+      {/* Desktop sidebar - static in flex layout, always visible on md+ */}
+      <aside
+        className={cn(
+          'hidden md:flex h-screen bg-sidebar border-r border-border flex-col transition-all duration-300 shrink-0',
+          sidebarCollapsed ? 'w-16' : 'w-64',
+        )}
+      >
+        <div className="h-16 flex items-center justify-between border-b border-border px-3">
+          <Logo size={sidebarCollapsed ? 'sm' : 'md'} showText={!sidebarCollapsed} />
+        </div>
+        <SidebarContent collapsed={sidebarCollapsed} role={role} />
+      </aside>
 
-      <nav className="flex-1 overflow-y-auto py-2 space-y-1">
-        {navigation.map((entry) => {
-          if (isGroup(entry)) {
-            return (
-              <SidebarGroup
-                key={entry.label}
-                group={entry}
-                collapsed={sidebarCollapsed && !sidebarOpen}
-                role={role}
-                onNavigate={handleMobileNavigate}
-              />
-            )
-          }
-
-          if (entry.permission && !hasPermission(role, entry.permission)) return null
-
-          return (
-            <SidebarItem
-              key={entry.to}
-              item={entry}
-              collapsed={sidebarCollapsed && !sidebarOpen}
-              onNavigate={handleMobileNavigate}
-            />
-          )
-        })}
-      </nav>
-    </aside>
+      {/* Mobile sidebar - fixed overlay, only visible when sidebarOpen */}
+      <aside
+        className={cn(
+          'fixed inset-y-0 left-0 z-50 w-64 bg-sidebar border-r border-border flex flex-col transition-transform duration-300 md:hidden',
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full',
+        )}
+      >
+        <div className="h-16 flex items-center justify-between border-b border-border px-3">
+          <Logo size="md" showText />
+          <button
+            onClick={() => setSidebarOpen(false)}
+            className="p-1.5 rounded-lg hover:bg-secondary transition-colors"
+          >
+            <X size={18} />
+          </button>
+        </div>
+        <SidebarContent collapsed={false} role={role} onNavigate={handleMobileNavigate} />
+      </aside>
+    </>
   )
 }
