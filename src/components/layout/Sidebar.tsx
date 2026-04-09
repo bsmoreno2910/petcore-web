@@ -38,8 +38,8 @@ const navigation: NavEntry[] = [
     label: 'Cadastros',
     icon: Clipboard,
     items: [
-      { label: 'Tutores', icon: Users, to: '/tutors', permission: 'tutors.manage' },
-      { label: 'Pacientes', icon: PawPrint, to: '/patients', permission: 'patients.manage' },
+      { label: 'Tutores', icon: Users, to: '/tutores', permission: 'tutors.manage' },
+      { label: 'Pacientes', icon: PawPrint, to: '/pacientes', permission: 'patients.manage' },
     ],
   },
 
@@ -48,9 +48,9 @@ const navigation: NavEntry[] = [
     icon: Stethoscope,
     items: [
       { label: 'Agenda', icon: Calendar, to: '/agenda', permission: 'agenda.view' },
-      { label: 'Prontuários', icon: FileText, to: '/medical-records', permission: 'medical.view' },
-      { label: 'Internações', icon: Bed, to: '/hospitalizations', permission: 'hospitalization.manage' },
-      { label: 'Exames', icon: FlaskConical, to: '/exams', permission: 'exams.view' },
+      { label: 'Prontuários', icon: FileText, to: '/prontuarios', permission: 'medical.view' },
+      { label: 'Internações', icon: Bed, to: '/internacoes', permission: 'hospitalization.manage' },
+      { label: 'Exames', icon: FlaskConical, to: '/exames', permission: 'exams.view' },
     ],
   },
 
@@ -58,9 +58,9 @@ const navigation: NavEntry[] = [
     label: 'Estoque',
     icon: Warehouse,
     items: [
-      { label: 'Produtos', icon: Package, to: '/products', permission: 'stock.view' },
-      { label: 'Movimentações', icon: ArrowLeftRight, to: '/movements', permission: 'stock.operate' },
-      { label: 'Pedidos', icon: ClipboardList, to: '/orders', permission: 'stock.operate' },
+      { label: 'Produtos', icon: Package, to: '/produtos', permission: 'stock.view' },
+      { label: 'Movimentações', icon: ArrowLeftRight, to: '/movimentacoes', permission: 'stock.operate' },
+      { label: 'Pedidos', icon: ClipboardList, to: '/pedidos', permission: 'stock.operate' },
     ],
   },
 
@@ -68,9 +68,9 @@ const navigation: NavEntry[] = [
     label: 'Financeiro',
     icon: Banknote,
     items: [
-      { label: 'Transações', icon: DollarSign, to: '/financial', permission: 'financial.view' },
-      { label: 'Centros de Custo', icon: Building2, to: '/cost-centers', permission: 'costs.view' },
-      { label: 'Relatórios', icon: BarChart3, to: '/reports', permission: 'reports.export' },
+      { label: 'Transações', icon: DollarSign, to: '/financeiro', permission: 'financial.view' },
+      { label: 'Centros de Custo', icon: Building2, to: '/centros-custo', permission: 'costs.view' },
+      { label: 'Relatórios', icon: BarChart3, to: '/relatorios', permission: 'reports.export' },
     ],
   },
 
@@ -78,10 +78,10 @@ const navigation: NavEntry[] = [
     label: 'Administração',
     icon: Cog,
     items: [
-      { label: 'Usuários', icon: UserCircle, to: '/users', permission: 'users.manage' },
-      { label: 'Clínicas', icon: Stethoscope, to: '/clinics', permission: 'clinics.manage' },
-      { label: 'Auditoria', icon: Shield, to: '/audit', permission: 'audit.view' },
-      { label: 'Configurações', icon: Settings, to: '/settings', permission: null },
+      { label: 'Usuários', icon: UserCircle, to: '/usuarios', permission: 'users.manage' },
+      { label: 'Clínicas', icon: Stethoscope, to: '/clinicas', permission: 'clinics.manage' },
+      { label: 'Auditoria', icon: Shield, to: '/auditoria', permission: 'audit.view' },
+      { label: 'Configurações', icon: Settings, to: '/configuracoes', permission: null },
     ],
   },
 ]
@@ -154,7 +154,7 @@ function SidebarGroup({ group, collapsed, role }: { group: NavGroup; collapsed: 
 }
 
 export function Sidebar() {
-  const role = useAuthStore((s) => s.getRole())
+  const role = useAuthStore((s) => s.getPerfil())
   const { sidebarCollapsed } = useUiStore()
 
   return (

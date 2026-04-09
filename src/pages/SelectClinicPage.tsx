@@ -5,18 +5,16 @@ import { authApi } from '@/api/auth.api'
 import { Logo } from '@/components/shared/Logo'
 
 export default function SelectClinicPage() {
-  const { clinics, setActiveClinic, setTokens } = useAuthStore()
+  const { clinicas, setClinicaAtiva, setTokens } = useAuthStore()
   const navigate = useNavigate()
 
-  const handleSelect = async (clinic: typeof clinics[0]) => {
+  const handleSelect = async (clinica: typeof clinicas[0]) => {
     try {
-      const result = await authApi.selectClinic(clinic.id)
-      setTokens(result.accessToken, result.refreshToken)
-      setActiveClinic(clinic)
+      const resultado = await authApi.selecionarClinica(clinica.id)
+      setTokens(resultado.tokenAcesso, resultado.tokenAtualizacao)
+      setClinicaAtiva(clinica)
       navigate('/')
-    } catch {
-      // silently fail
-    }
+    } catch { /* silent */ }
   }
 
   return (
@@ -29,16 +27,13 @@ export default function SelectClinicPage() {
         </div>
 
         <div className="space-y-3">
-          {clinics.map((clinic) => (
-            <button
-              key={clinic.id}
-              onClick={() => handleSelect(clinic)}
-              className="w-full flex items-center gap-4 p-4 border border-border rounded-xl hover:bg-secondary transition-colors text-left"
-            >
+          {clinicas.map((clinica) => (
+            <button key={clinica.id} onClick={() => handleSelect(clinica)}
+              className="w-full flex items-center gap-4 p-4 border border-border rounded-xl hover:bg-secondary transition-colors text-left">
               <Building2 size={24} className="text-accent" />
               <div>
-                <p className="font-medium">{clinic.name}</p>
-                <p className="text-sm text-muted-foreground">{clinic.role}</p>
+                <p className="font-medium">{clinica.nome}</p>
+                <p className="text-sm text-muted-foreground">{clinica.perfil}</p>
               </div>
             </button>
           ))}

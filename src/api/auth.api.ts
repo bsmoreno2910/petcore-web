@@ -1,20 +1,31 @@
 import api from './client'
-import type { LoginRequest, LoginResponse, ChangePasswordRequest } from '@/types/auth'
+
+export interface LoginDto {
+  email: string
+  senha: string
+}
+
+export interface LoginResposta {
+  tokenAcesso: string
+  tokenAtualizacao: string
+  usuario: { id: string; nome: string; email: string; telefone?: string; crmv?: string; avatarUrl?: string }
+  clinicas: { clinicaId: string; nome: string; nomeFantasia?: string; perfil: string }[]
+}
 
 export const authApi = {
-  login: (data: LoginRequest) =>
-    api.post<LoginResponse>('/api/auth/login', data).then(r => r.data),
+  login: (data: LoginDto) =>
+    api.post<LoginResposta>('/api/autenticacao/login', data).then(r => r.data),
 
-  refresh: (refreshToken: string) =>
-    api.post('/api/auth/refresh', { refreshToken }).then(r => r.data),
+  refresh: (tokenAtualizacao: string) =>
+    api.post('/api/autenticacao/refresh', { tokenAtualizacao }).then(r => r.data),
 
-  logout: () => api.post('/api/auth/logout'),
+  logout: () => api.post('/api/autenticacao/logout'),
 
-  me: () => api.get('/api/auth/me').then(r => r.data),
+  me: () => api.get('/api/autenticacao/me').then(r => r.data),
 
-  changePassword: (data: ChangePasswordRequest) =>
-    api.patch('/api/auth/change-password', data).then(r => r.data),
+  alterarSenha: (senhaAtual: string, novaSenha: string) =>
+    api.patch('/api/autenticacao/alterar-senha', { senhaAtual, novaSenha }).then(r => r.data),
 
-  selectClinic: (clinicId: string) =>
-    api.post('/api/auth/select-clinic', { clinicId }).then(r => r.data),
+  selecionarClinica: (clinicaId: string) =>
+    api.post('/api/autenticacao/selecionar-clinica', { clinicaId }).then(r => r.data),
 }

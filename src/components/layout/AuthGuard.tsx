@@ -2,15 +2,15 @@ import { Navigate, useLocation } from 'react-router-dom'
 import { useAuthStore } from '@/stores/auth.store'
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
-  const { accessToken, activeClinic, clinics } = useAuthStore()
+  const { tokenAcesso, clinicaAtiva, clinicas } = useAuthStore()
   const location = useLocation()
 
-  if (!accessToken) {
+  if (!tokenAcesso) {
     return <Navigate to="/login" state={{ from: location }} replace />
   }
 
-  if (!activeClinic && clinics.length > 1 && location.pathname !== '/select-clinic') {
-    return <Navigate to="/select-clinic" replace />
+  if (!clinicaAtiva && clinicas.length > 1 && location.pathname !== '/selecionar-clinica') {
+    return <Navigate to="/selecionar-clinica" replace />
   }
 
   return <>{children}</>

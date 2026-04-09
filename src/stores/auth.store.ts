@@ -1,62 +1,77 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import type { UserInfo, ClinicInfo } from '@/types/auth'
+
+export interface InfoUsuario {
+  id: string
+  nome: string
+  email: string
+  telefone?: string
+  crmv?: string
+  avatarUrl?: string
+}
+
+export interface InfoClinica {
+  id: string
+  nome: string
+  nomeFantasia?: string
+  perfil: string
+}
 
 interface AuthState {
-  accessToken: string | null
-  refreshToken: string | null
-  user: UserInfo | null
-  clinics: ClinicInfo[]
-  activeClinic: ClinicInfo | null
+  tokenAcesso: string | null
+  tokenAtualizacao: string | null
+  usuario: InfoUsuario | null
+  clinicas: InfoClinica[]
+  clinicaAtiva: InfoClinica | null
 
   setAuth: (data: {
-    accessToken: string
-    refreshToken: string
-    user: UserInfo
-    clinics: ClinicInfo[]
+    tokenAcesso: string
+    tokenAtualizacao: string
+    usuario: InfoUsuario
+    clinicas: InfoClinica[]
   }) => void
-  setActiveClinic: (clinic: ClinicInfo) => void
-  setTokens: (accessToken: string, refreshToken: string) => void
+  setClinicaAtiva: (clinica: InfoClinica) => void
+  setTokens: (tokenAcesso: string, tokenAtualizacao: string) => void
   logout: () => void
-  isAuthenticated: () => boolean
-  getRole: () => string | null
+  estaAutenticado: () => boolean
+  getPerfil: () => string | null
 }
 
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
-      accessToken: null,
-      refreshToken: null,
-      user: null,
-      clinics: [],
-      activeClinic: null,
+      tokenAcesso: null,
+      tokenAtualizacao: null,
+      usuario: null,
+      clinicas: [],
+      clinicaAtiva: null,
 
       setAuth: (data) => {
-        const activeClinic = data.clinics.length === 1 ? data.clinics[0] : null
+        const clinicaAtiva = data.clinicas.length === 1 ? data.clinicas[0] : null
         set({
-          accessToken: data.accessToken,
-          refreshToken: data.refreshToken,
-          user: data.user,
-          clinics: data.clinics,
-          activeClinic,
+          tokenAcesso: data.tokenAcesso,
+          tokenAtualizacao: data.tokenAtualizacao,
+          usuario: data.usuario,
+          clinicas: data.clinicas,
+          clinicaAtiva,
         })
       },
 
-      setActiveClinic: (clinic) => set({ activeClinic: clinic }),
+      setClinicaAtiva: (clinica) => set({ clinicaAtiva: clinica }),
 
-      setTokens: (accessToken, refreshToken) => set({ accessToken, refreshToken }),
+      setTokens: (tokenAcesso, tokenAtualizacao) => set({ tokenAcesso, tokenAtualizacao }),
 
       logout: () => set({
-        accessToken: null,
-        refreshToken: null,
-        user: null,
-        clinics: [],
-        activeClinic: null,
+        tokenAcesso: null,
+        tokenAtualizacao: null,
+        usuario: null,
+        clinicas: [],
+        clinicaAtiva: null,
       }),
 
-      isAuthenticated: () => !!get().accessToken,
+      estaAutenticado: () => !!get().tokenAcesso,
 
-      getRole: () => get().activeClinic?.role ?? null,
+      getPerfil: () => get().clinicaAtiva?.perfil ?? null,
     }),
     { name: 'petcore-auth' },
   ),
