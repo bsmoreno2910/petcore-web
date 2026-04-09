@@ -84,7 +84,7 @@ export function Logo({ size = 'md', showText = true, className }: LogoProps) {
             Pet<span className="text-accent">Core</span>
           </span>
           <span className={`${s.sub} uppercase tracking-[0.25em] text-muted-foreground mt-0.5`}>
-            Vet System
+            Sistema Veterinário
           </span>
         </div>
       )}

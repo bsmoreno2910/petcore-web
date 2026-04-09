@@ -261,3 +261,10 @@ input[type="checkbox"] {
 .dark ::-webkit-scrollbar-thumb:hover {
   background: var(--color-muted-foreground);
 }
+
+/* ===== Print Styles ===== */
+@media print {
+  .no-print { display: none !important; }
+  body { background: white !important; }
+  main { padding: 0 !important; overflow: visible !important; }
+}

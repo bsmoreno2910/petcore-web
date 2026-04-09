@@ -1,36 +1,37 @@
 import { lazy, Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
-import { AppLayout } from '@/components/layout/AppLayout'
-import { AuthGuard } from '@/components/layout/AuthGuard'
-import { CommandPalette } from '@/components/shared/CommandPalette'
+import { AppLayout } from '@/components/layout/LayoutPrincipal'
+import { AuthGuard } from '@/components/layout/GuardaAutenticacao'
+import { CommandPalette } from '@/components/shared/PaletaComandos'
 
 // Lazy loading de todas as páginas
-const LoginPage = lazy(() => import('@/pages/LoginPage'))
-const SelectClinicPage = lazy(() => import('@/pages/SelectClinicPage'))
-const DashboardPage = lazy(() => import('@/pages/DashboardPage'))
-const TutorsPage = lazy(() => import('@/pages/TutorsPage'))
-const TutorDetailPage = lazy(() => import('@/pages/TutorDetailPage'))
-const PatientsPage = lazy(() => import('@/pages/PatientsPage'))
-const PatientDetailPage = lazy(() => import('@/pages/PatientDetailPage'))
-const AgendaPage = lazy(() => import('@/pages/AgendaPage'))
-const MedicalRecordsPage = lazy(() => import('@/pages/MedicalRecordsPage'))
-const HospitalizationsPage = lazy(() => import('@/pages/HospitalizationsPage'))
-const ExamsPage = lazy(() => import('@/pages/ExamsPage'))
-const ProductsPage = lazy(() => import('@/pages/ProductsPage'))
-const MovementsPage = lazy(() => import('@/pages/MovementsPage'))
-const OrdersPage = lazy(() => import('@/pages/OrdersPage'))
-const FinancialPage = lazy(() => import('@/pages/FinancialPage'))
-const CostCentersPage = lazy(() => import('@/pages/CostCentersPage'))
-const ReportsPage = lazy(() => import('@/pages/ReportsPage'))
-const UsersPage = lazy(() => import('@/pages/UsersPage'))
-const ClinicsPage = lazy(() => import('@/pages/ClinicsPage'))
-const AuditPage = lazy(() => import('@/pages/AuditPage'))
-const SettingsPage = lazy(() => import('@/pages/SettingsPage'))
-const MedicalRecordDetailPage = lazy(() => import('@/pages/MedicalRecordDetailPage'))
-const HospitalizationDetailPage = lazy(() => import('@/pages/HospitalizationDetailPage'))
-const ExamDetailPage = lazy(() => import('@/pages/ExamDetailPage'))
-const OrderDetailPage = lazy(() => import('@/pages/OrderDetailPage'))
-const ProductDetailPage = lazy(() => import('@/pages/ProductDetailPage'))
+const LoginPage = lazy(() => import('@/pages/PaginaLogin'))
+const SelectClinicPage = lazy(() => import('@/pages/PaginaSelecionarClinica'))
+const DashboardPage = lazy(() => import('@/pages/PaginaDashboard'))
+const TutorsPage = lazy(() => import('@/pages/PaginaTutores'))
+const TutorDetailPage = lazy(() => import('@/pages/PaginaDetalheTutor'))
+const PatientsPage = lazy(() => import('@/pages/PaginaPacientes'))
+const PatientDetailPage = lazy(() => import('@/pages/PaginaDetalhePaciente'))
+const AgendaPage = lazy(() => import('@/pages/PaginaAgenda'))
+const MedicalRecordsPage = lazy(() => import('@/pages/PaginaProntuarios'))
+const HospitalizationsPage = lazy(() => import('@/pages/PaginaInternacoes'))
+const ExamsPage = lazy(() => import('@/pages/PaginaExames'))
+const ProductsPage = lazy(() => import('@/pages/PaginaProdutos'))
+const MovementsPage = lazy(() => import('@/pages/PaginaMovimentacoes'))
+const OrdersPage = lazy(() => import('@/pages/PaginaPedidos'))
+const FinancialPage = lazy(() => import('@/pages/PaginaFinanceiro'))
+const CostCentersPage = lazy(() => import('@/pages/PaginaCentrosCusto'))
+const ReportsPage = lazy(() => import('@/pages/PaginaRelatorios'))
+const UsersPage = lazy(() => import('@/pages/PaginaUsuarios'))
+const ClinicsPage = lazy(() => import('@/pages/PaginaClinicas'))
+const AuditPage = lazy(() => import('@/pages/PaginaAuditoria'))
+const SettingsPage = lazy(() => import('@/pages/PaginaConfiguracoes'))
+const PermissionsPage = lazy(() => import('@/pages/PaginaPermissoes'))
+const MedicalRecordDetailPage = lazy(() => import('@/pages/PaginaDetalheProntuario'))
+const HospitalizationDetailPage = lazy(() => import('@/pages/PaginaDetalheInternacao'))
+const ExamDetailPage = lazy(() => import('@/pages/PaginaDetalheExame'))
+const OrderDetailPage = lazy(() => import('@/pages/PaginaDetalhePedido'))
+const ProductDetailPage = lazy(() => import('@/pages/PaginaDetalheProduto'))
 
 function LoadingFallback() {
   return (
@@ -72,6 +73,7 @@ export default function App() {
           <Route path="usuarios" element={<UsersPage />} />
           <Route path="clinicas" element={<ClinicsPage />} />
           <Route path="auditoria" element={<AuditPage />} />
+          <Route path="permissoes" element={<PermissionsPage />} />
           <Route path="configuracoes" element={<SettingsPage />} />
         </Route>
 
