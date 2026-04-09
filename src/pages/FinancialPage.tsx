@@ -7,6 +7,9 @@ import { PageHeader } from '@/components/shared/PageHeader'
 import { DataTable } from '@/components/shared/DataTable'
 import { StatusBadge } from '@/components/shared/StatusBadge'
 import { MoneyDisplay } from '@/components/shared/MoneyDisplay'
+import { TutorSearch } from '@/components/shared/TutorSearch'
+import { DatePicker } from '@/components/shared/DatePicker'
+import { maskMoney } from '@/lib/masks'
 import { formatDate, formatCurrency } from '@/lib/utils'
 
 function SummaryCard({ icon: Icon, label, value, color }: { icon: React.ElementType; label: string; value: string; color: string }) {
@@ -33,7 +36,8 @@ export default function FinancialPage() {
     queryFn: () => financeiroApi.listar({ pagina: page, tamanhoPagina: 20, tipo: typeFilter || undefined, status: statusFilter || undefined }),
   })
 
-  const [form, setForm] = useState({ tipo: 'Revenue', categoriaFinanceiraId: '', descricao: '', valor: 0, dataVencimento: '', tutorId: '', numeroParcelas: 1 })
+  const [form, setForm] = useState({ tipo: 'Receita', categoriaFinanceiraId: '', descricao: '', valor: '', dataVencimento: null as Date | null, tutorId: '', numeroParcelas: 1 })
+  const [tutorSelecionado, setTutorSelecionado] = useState<{ id: string; nome: string } | null>(null)
 
   const createMutation = useMutation({
     mutationFn: financeiroApi.criar,
@@ -54,7 +58,7 @@ export default function FinancialPage() {
     { key: 'valor', header: 'Valor', render: (t: TransacaoFinanceira) => <MoneyDisplay value={t.valor} /> },
     { key: 'status', header: 'Status', render: (t: TransacaoFinanceira) => <StatusBadge status={t.status} /> },
     { key: 'actions', header: '', render: (t: TransacaoFinanceira) =>
-      t.status === 'Pending' ? (
+      t.status === 'Pendente' ? (
         <button onClick={(e) => { e.stopPropagation(); payMutation.mutate({ id: t.id }) }}
           className="px-2 py-1 bg-green-500 text-white rounded text-xs">Pagar</button>
       ) : null
@@ -82,15 +86,15 @@ export default function FinancialPage() {
       <div className="flex gap-3 mb-4">
         <select value={typeFilter} onChange={e => { setTypeFilter(e.target.value); setPage(1) }} className="px-3 py-2 border border-input rounded-lg text-sm bg-background">
           <option value="">Todos os tipos</option>
-          <option value="Revenue">Receitas</option>
-          <option value="Expense">Despesas</option>
+          <option value="Receita">Receitas</option>
+          <option value="Despesa">Despesas</option>
         </select>
         <select value={statusFilter} onChange={e => { setStatusFilter(e.target.value); setPage(1) }} className="px-3 py-2 border border-input rounded-lg text-sm bg-background">
           <option value="">Todos os status</option>
-          <option value="Pending">Pendente</option>
-          <option value="Paid">Pago</option>
-          <option value="Overdue">Vencido</option>
-          <option value="Cancelled">Cancelado</option>
+          <option value="Pendente">Pendente</option>
+          <option value="Pago">Pago</option>
+          <option value="Atrasado">Atrasado</option>
+          <option value="Cancelado">Cancelado</option>
         </select>
       </div>
 
@@ -102,10 +106,10 @@ export default function FinancialPage() {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="bg-card rounded-xl shadow-lg p-6 w-full max-w-lg mx-4">
             <h3 className="text-lg font-semibold mb-4">Nova Transação</h3>
-            <form onSubmit={(e) => { e.preventDefault(); createMutation.mutate({ ...form, numeroParcelas: form.numeroParcelas > 1 ? form.numeroParcelas : undefined }) }} className="space-y-3">
+            <form onSubmit={(e) => { e.preventDefault(); createMutation.mutate({ ...form, valor: parseFloat(String(form.valor).replace(',', '.')) || 0, dataVencimento: form.dataVencimento ? form.dataVencimento.toISOString().split('T')[0] : '', numeroParcelas: form.numeroParcelas > 1 ? form.numeroParcelas : undefined }) }} className="space-y-3">
               <select required value={form.tipo} onChange={e => setForm({ ...form, tipo: e.target.value })} className="w-full px-3 py-2 border border-input rounded-lg text-sm">
-                <option value="Revenue">Receita</option>
-                <option value="Expense">Despesa</option>
+                <option value="Receita">Receita</option>
+                <option value="Despesa">Despesa</option>
               </select>
               <select required value={form.categoriaFinanceiraId} onChange={e => setForm({ ...form, categoriaFinanceiraId: e.target.value })} className="w-full px-3 py-2 border border-input rounded-lg text-sm">
                 <option value="">Categoria *</option>
@@ -113,12 +117,18 @@ export default function FinancialPage() {
               </select>
               <input required placeholder="Descrição *" value={form.descricao} onChange={e => setForm({ ...form, descricao: e.target.value })} className="w-full px-3 py-2 border border-input rounded-lg text-sm" />
               <div className="grid grid-cols-2 gap-3">
-                <input required type="number" step="0.01" placeholder="Valor *" value={form.valor} onChange={e => setForm({ ...form, valor: Number(e.target.value) })} className="w-full px-3 py-2 border border-input rounded-lg text-sm" />
-                <input required type="date" value={form.dataVencimento} onChange={e => setForm({ ...form, dataVencimento: e.target.value })} className="w-full px-3 py-2 border border-input rounded-lg text-sm" />
+                <div>
+                  <label className="block text-sm font-medium mb-1">Valor <span className="text-destructive">*</span></label>
+                  <input required placeholder="0,00" value={form.valor} onChange={e => setForm({ ...form, valor: maskMoney(e.target.value) })} className="w-full px-3 py-2 border border-input rounded-lg text-sm" />
+                </div>
+                <DatePicker label="Vencimento" required value={form.dataVencimento} onChange={(date) => setForm({ ...form, dataVencimento: date })} placeholder="Selecione a data" />
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <input placeholder="ID do Tutor (opcional)" value={form.tutorId} onChange={e => setForm({ ...form, tutorId: e.target.value })} className="w-full px-3 py-2 border border-input rounded-lg text-sm" />
-                <input type="number" min={1} placeholder="Parcelas" value={form.numeroParcelas} onChange={e => setForm({ ...form, numeroParcelas: Number(e.target.value) })} className="w-full px-3 py-2 border border-input rounded-lg text-sm" />
+                <TutorSearch value={tutorSelecionado} onChange={(t) => { setTutorSelecionado(t); setForm({ ...form, tutorId: t?.id ?? '' }) }} />
+                <div>
+                  <label className="block text-sm font-medium mb-1">Parcelas</label>
+                  <input type="number" min={1} placeholder="Parcelas" value={form.numeroParcelas} onChange={e => setForm({ ...form, numeroParcelas: Number(e.target.value) })} className="w-full px-3 py-2 border border-input rounded-lg text-sm" />
+                </div>
               </div>
               <div className="flex justify-end gap-3 pt-2">
                 <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 border border-border rounded-lg text-sm">Cancelar</button>

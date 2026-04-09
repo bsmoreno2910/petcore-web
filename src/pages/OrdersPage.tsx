@@ -77,16 +77,16 @@ export default function OrdersPage() {
               </div>
 
               <div className="flex flex-wrap gap-2 pt-2">
-                {order.status === 'Draft' && (
+                {order.status === 'Rascunho' && (
                   <button onClick={() => submitMut.mutate(order.id)} className="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-500 text-white rounded text-xs"><Send size={12} /> Submeter</button>
                 )}
-                {order.status === 'Pending' && (
+                {order.status === 'Pendente' && (
                   <button onClick={() => approveMut.mutate(order.id)} className="inline-flex items-center gap-1 px-3 py-1.5 bg-green-500 text-white rounded text-xs"><Check size={12} /> Aprovar</button>
                 )}
-                {(order.status === 'Approved' || order.status === 'PartiallyReceived') && (
+                {(order.status === 'Aprovado' || order.status === 'ParcialmenteRecebido') && (
                   <button className="inline-flex items-center gap-1 px-3 py-1.5 bg-purple-500 text-white rounded text-xs"><PackageCheck size={12} /> Receber</button>
                 )}
-                {order.status !== 'Received' && order.status !== 'Cancelled' && (
+                {order.status !== 'Recebido' && order.status !== 'Cancelado' && (
                   <button onClick={() => cancelMut.mutate(order.id)} className="inline-flex items-center gap-1 px-3 py-1.5 bg-red-500 text-white rounded text-xs"><X size={12} /> Cancelar</button>
                 )}
               </div>

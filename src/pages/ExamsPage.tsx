@@ -32,11 +32,11 @@ export default function ExamsPage() {
         <select value={status} onChange={e => { setStatus(e.target.value); setPage(1) }}
           className="px-3 py-2 border border-input rounded-lg text-sm bg-background">
           <option value="">Todos os status</option>
-          <option value="Requested">Solicitados</option>
-          <option value="SampleCollected">Coletados</option>
-          <option value="Processing">Em processamento</option>
-          <option value="Completed">Concluídos</option>
-          <option value="Cancelled">Cancelados</option>
+          <option value="Solicitado">Solicitados</option>
+          <option value="AmostraColetada">Coletados</option>
+          <option value="Processando">Em processamento</option>
+          <option value="Concluido">Concluídos</option>
+          <option value="Cancelado">Cancelados</option>
         </select>
       </div>
       <DataTable columns={columns} data={data?.itens ?? []} page={page}

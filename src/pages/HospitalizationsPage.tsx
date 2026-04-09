@@ -32,10 +32,10 @@ export default function HospitalizationsPage() {
         <select value={status} onChange={e => { setStatus(e.target.value); setPage(1) }}
           className="px-3 py-2 border border-input rounded-lg text-sm bg-background">
           <option value="">Todos os status</option>
-          <option value="Active">Ativas</option>
-          <option value="Discharged">Alta</option>
-          <option value="Transferred">Transferidas</option>
-          <option value="Deceased">Óbito</option>
+          <option value="Ativo">Ativas</option>
+          <option value="Alta">Alta</option>
+          <option value="Transferido">Transferidas</option>
+          <option value="Obito">Óbito</option>
         </select>
       </div>
       <DataTable columns={columns} data={data?.itens ?? []} page={page}

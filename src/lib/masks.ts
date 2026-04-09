@@ -23,6 +23,27 @@ export function maskCep(value: string): string {
   return digits.replace(/(\d{5})(\d)/, '$1-$2')
 }
 
+export function maskCnpj(value: string): string {
+  const digits = value.replace(/\D/g, '').slice(0, 14)
+  return digits
+    .replace(/(\d{2})(\d)/, '$1.$2')
+    .replace(/(\d{3})(\d)/, '$1.$2')
+    .replace(/(\d{3})(\d)/, '$1/$2')
+    .replace(/(\d{4})(\d{1,2})$/, '$1-$2')
+}
+
+export function maskMoney(value: string): string {
+  const cleaned = value.replace(/[^\d,]/g, '')
+  const parts = cleaned.split(',')
+  if (parts.length > 2) {
+    return parts[0] + ',' + parts.slice(1).join('')
+  }
+  if (parts.length === 2) {
+    return parts[0] + ',' + parts[1].slice(0, 2)
+  }
+  return cleaned
+}
+
 export function unmask(value: string): string {
   return value.replace(/\D/g, '')
 }

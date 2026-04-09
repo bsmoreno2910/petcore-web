@@ -7,6 +7,7 @@ import type { Usuario } from '@/types/user'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { DataTable } from '@/components/shared/DataTable'
 import { StatusBadge } from '@/components/shared/StatusBadge'
+import { maskPhone } from '@/lib/masks'
 import { formatDate } from '@/lib/utils'
 
 export default function UsersPage() {
@@ -63,7 +64,7 @@ export default function UsersPage() {
               <input required type="email" placeholder="E-mail *" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} className="w-full px-3 py-2 border border-input rounded-lg text-sm" />
               <input required type="password" placeholder="Senha *" minLength={6} value={form.senha} onChange={e => setForm({ ...form, senha: e.target.value })} className="w-full px-3 py-2 border border-input rounded-lg text-sm" />
               <div className="grid grid-cols-2 gap-3">
-                <input placeholder="Telefone" value={form.telefone} onChange={e => setForm({ ...form, telefone: e.target.value })} className="w-full px-3 py-2 border border-input rounded-lg text-sm" />
+                <input placeholder="Telefone" value={form.telefone} onChange={e => setForm({ ...form, telefone: maskPhone(e.target.value) })} className="w-full px-3 py-2 border border-input rounded-lg text-sm" />
                 <input placeholder="CRMV (veterinários)" value={form.crmv} onChange={e => setForm({ ...form, crmv: e.target.value })} className="w-full px-3 py-2 border border-input rounded-lg text-sm" />
               </div>
               <div className="flex justify-end gap-3 pt-2">

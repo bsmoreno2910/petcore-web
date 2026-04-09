@@ -7,6 +7,7 @@ import { PageHeader } from '@/components/shared/PageHeader'
 import { DataTable } from '@/components/shared/DataTable'
 import { StatusBadge } from '@/components/shared/StatusBadge'
 import { ExportButton } from '@/components/shared/ExportButton'
+import { ProdutoSearch } from '@/components/shared/ProdutoSearch'
 import { formatDateTime } from '@/lib/utils'
 
 export default function MovementsPage() {
@@ -40,7 +41,9 @@ export default function MovementsPage() {
     { key: 'nomeCriadoPor', header: 'Usuário' },
   ]
 
-  const openForm = (type: typeof moveType) => { setMoveType(type); setForm({ produtoId: '', quantidade: 1, motivo: '', observacoes: '' }); setShowForm(true) }
+  const [produtoSelecionado, setProdutoSelecionado] = useState<{ id: string; nome: string } | null>(null)
+
+  const openForm = (type: typeof moveType) => { setMoveType(type); setForm({ produtoId: '', quantidade: 1, motivo: '', observacoes: '' }); setProdutoSelecionado(null); setShowForm(true) }
 
   return (
     <div>
@@ -56,11 +59,11 @@ export default function MovementsPage() {
       <div className="mb-4">
         <select value={typeFilter} onChange={e => { setTypeFilter(e.target.value); setPage(1) }} className="px-3 py-2 border border-input rounded-lg text-sm bg-background">
           <option value="">Todos os tipos</option>
-          <option value="Entry">Entrada</option>
-          <option value="Exit">Saída</option>
-          <option value="Adjustment">Ajuste</option>
-          <option value="Loss">Perda</option>
-          <option value="Return">Devolução</option>
+          <option value="Entrada">Entrada</option>
+          <option value="Saida">Saída</option>
+          <option value="Ajuste">Ajuste</option>
+          <option value="Perda">Perda</option>
+          <option value="Devolucao">Devolução</option>
         </select>
       </div>
 
@@ -73,7 +76,7 @@ export default function MovementsPage() {
           <div className="bg-card rounded-xl shadow-lg p-6 w-full max-w-md mx-4">
             <h3 className="text-lg font-semibold mb-4">Nova {moveType === 'entrada' ? 'Entrada' : moveType === 'saida' ? 'Saída' : moveType === 'ajuste' ? 'Ajuste' : 'Perda'}</h3>
             <form onSubmit={(e) => { e.preventDefault(); mutation.mutate(form) }} className="space-y-3">
-              <input required placeholder="ID do Produto *" value={form.produtoId} onChange={e => setForm({ ...form, produtoId: e.target.value })} className="w-full px-3 py-2 border border-input rounded-lg text-sm" />
+              <ProdutoSearch value={produtoSelecionado} onChange={(p) => { setProdutoSelecionado(p); setForm({ ...form, produtoId: p?.id ?? '' }) }} />
               <input required type="number" min={1} placeholder="Quantidade *" value={form.quantidade} onChange={e => setForm({ ...form, quantidade: Number(e.target.value) })} className="w-full px-3 py-2 border border-input rounded-lg text-sm" />
               <input placeholder="Motivo" value={form.motivo} onChange={e => setForm({ ...form, motivo: e.target.value })} className="w-full px-3 py-2 border border-input rounded-lg text-sm" />
               <div className="flex justify-end gap-3 pt-2">

@@ -6,6 +6,7 @@ import { clinicasApi } from '@/api/clinics.api'
 import type { Clinica, ClinicaUsuario } from '@/types/clinic'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { StatusBadge } from '@/components/shared/StatusBadge'
+import { maskCnpj, maskPhone } from '@/lib/masks'
 
 export default function ClinicsPage() {
   const [showForm, setShowForm] = useState(false)
@@ -56,7 +57,7 @@ export default function ClinicsPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <StatusBadge status={c.ativa ? 'Active' : 'Cancelled'} />
+                    <StatusBadge status={c.ativa ? 'Ativo' : 'Inativo'} />
                     <button onClick={(e) => { e.stopPropagation(); toggleMutation.mutate(c.id) }} className="text-muted-foreground hover:text-foreground">
                       {c.ativa ? <ToggleRight size={22} className="text-green-500" /> : <ToggleLeft size={22} />}
                     </button>
@@ -103,8 +104,8 @@ export default function ClinicsPage() {
               <input required placeholder="Nome da clínica *" value={form.nome} onChange={e => setForm({ ...form, nome: e.target.value })} className="w-full px-3 py-2 border border-input rounded-lg text-sm" />
               <input placeholder="Nome fantasia" value={form.nomeFantasia} onChange={e => setForm({ ...form, nomeFantasia: e.target.value })} className="w-full px-3 py-2 border border-input rounded-lg text-sm" />
               <div className="grid grid-cols-2 gap-3">
-                <input placeholder="CNPJ" value={form.cnpj} onChange={e => setForm({ ...form, cnpj: e.target.value })} className="w-full px-3 py-2 border border-input rounded-lg text-sm" />
-                <input placeholder="Telefone" value={form.telefone} onChange={e => setForm({ ...form, telefone: e.target.value })} className="w-full px-3 py-2 border border-input rounded-lg text-sm" />
+                <input placeholder="CNPJ" value={form.cnpj} onChange={e => setForm({ ...form, cnpj: maskCnpj(e.target.value) })} className="w-full px-3 py-2 border border-input rounded-lg text-sm" />
+                <input placeholder="Telefone" value={form.telefone} onChange={e => setForm({ ...form, telefone: maskPhone(e.target.value) })} className="w-full px-3 py-2 border border-input rounded-lg text-sm" />
               </div>
               <input placeholder="E-mail" type="email" value={form.email} onChange={e => setForm({ ...form, email: e.target.value })} className="w-full px-3 py-2 border border-input rounded-lg text-sm" />
               <div className="grid grid-cols-2 gap-3">

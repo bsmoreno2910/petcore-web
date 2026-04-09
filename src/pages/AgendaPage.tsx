@@ -10,7 +10,19 @@ import { agendamentosApi } from '@/api/appointments.api'
 import { pacientesApi } from '@/api/patients.api'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { StatusBadge } from '@/components/shared/StatusBadge'
+import { VeterinarioSearch } from '@/components/shared/VeterinarioSearch'
 import { formatDateTime } from '@/lib/utils'
+
+const tipoLabels: Record<string, string> = {
+  Consulta: 'Consulta',
+  Retorno: 'Retorno',
+  Cirurgia: 'Cirurgia',
+  Exame: 'Exame',
+  Vacinacao: 'Vacinação',
+  BanhoTosa: 'Banho e Tosa',
+  Emergencia: 'Emergência',
+  Outro: 'Outro',
+}
 
 export default function AgendaPage() {
   const [showForm, setShowForm] = useState(false)
@@ -20,6 +32,7 @@ export default function AgendaPage() {
   const [motivoCancelamento, setMotivoCancelamento] = useState('')
   const [buscaPaciente, setBuscaPaciente] = useState('')
   const [pacienteSelecionado, setPacienteSelecionado] = useState<{ id: string; nome: string; nomeTutor: string } | null>(null)
+  const [vetSelecionado, setVetSelecionado] = useState<{ id: string; nome: string } | null>(null)
   const qc = useQueryClient()
 
   const { data: events } = useQuery({
@@ -96,6 +109,7 @@ export default function AgendaPage() {
   const resetForm = () => {
     setForm({ pacienteId: '', veterinarioId: '', tipo: 'Consulta', dataHoraAgendada: '', duracaoMinutos: 30, motivo: '' })
     setPacienteSelecionado(null)
+    setVetSelecionado(null)
     setBuscaPaciente('')
   }
 
@@ -164,10 +178,10 @@ export default function AgendaPage() {
               <StatusBadge status={appointment.status} />
 
               <div className="text-sm space-y-1">
-                <p><span className="text-muted-foreground">Tipo:</span> {appointment.tipo}</p>
+                <p><span className="text-muted-foreground">Tipo:</span> {tipoLabels[appointment.tipo] ?? appointment.tipo}</p>
                 <p><span className="text-muted-foreground">Vet:</span> {appointment.nomeVeterinario || '---'}</p>
                 <p><span className="text-muted-foreground">Data/Hora:</span> {formatDateTime(appointment.dataHoraAgendada)}</p>
-                <p><span className="text-muted-foreground">Duracao:</span> {appointment.duracaoMinutos} min</p>
+                <p><span className="text-muted-foreground">Duração:</span> {appointment.duracaoMinutos} min</p>
                 <p><span className="text-muted-foreground">Motivo:</span> {appointment.motivo || '---'}</p>
                 {appointment.observacoes && (
                   <p><span className="text-muted-foreground">Obs:</span> {appointment.observacoes}</p>
@@ -302,15 +316,11 @@ export default function AgendaPage() {
                 )}
               </div>
 
-              <div>
-                <label className="block text-sm font-medium mb-1">ID do Veterinario</label>
-                <input
-                  placeholder="ID do Veterinario (opcional)"
-                  value={form.veterinarioId}
-                  onChange={(e) => setForm({ ...form, veterinarioId: e.target.value })}
-                  className="w-full px-3 py-2 border border-input rounded-lg text-sm"
-                />
-              </div>
+              <VeterinarioSearch
+                value={vetSelecionado}
+                onChange={(v) => { setVetSelecionado(v); setForm({ ...form, veterinarioId: v?.id ?? '' }) }}
+                label="Veterinário"
+              />
 
               <div>
                 <label className="block text-sm font-medium mb-1">Tipo</label>
@@ -323,9 +333,9 @@ export default function AgendaPage() {
                   <option value="Retorno">Retorno</option>
                   <option value="Cirurgia">Cirurgia</option>
                   <option value="Exame">Exame</option>
-                  <option value="Vacinacao">Vacinacao</option>
+                  <option value="Vacinacao">Vacinação</option>
                   <option value="BanhoTosa">Banho e Tosa</option>
-                  <option value="Emergencia">Emergencia</option>
+                  <option value="Emergencia">Emergência</option>
                   <option value="Outro">Outro</option>
                 </select>
               </div>
@@ -342,10 +352,10 @@ export default function AgendaPage() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium mb-1">Duracao (minutos)</label>
+                <label className="block text-sm font-medium mb-1">Duração (minutos)</label>
                 <input
                   type="number"
-                  placeholder="Duracao (min)"
+                  placeholder="Duração (min)"
                   value={form.duracaoMinutos}
                   onChange={(e) => setForm({ ...form, duracaoMinutos: Number(e.target.value) })}
                   className="w-full px-3 py-2 border border-input rounded-lg text-sm"
