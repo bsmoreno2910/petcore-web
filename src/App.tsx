@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { AuthGuard } from '@/components/layout/AuthGuard'
+import { CommandPalette } from '@/components/shared/CommandPalette'
 
 // Lazy loading de todas as páginas
 const LoginPage = lazy(() => import('@/pages/LoginPage'))
@@ -25,6 +26,11 @@ const UsersPage = lazy(() => import('@/pages/UsersPage'))
 const ClinicsPage = lazy(() => import('@/pages/ClinicsPage'))
 const AuditPage = lazy(() => import('@/pages/AuditPage'))
 const SettingsPage = lazy(() => import('@/pages/SettingsPage'))
+const MedicalRecordDetailPage = lazy(() => import('@/pages/MedicalRecordDetailPage'))
+const HospitalizationDetailPage = lazy(() => import('@/pages/HospitalizationDetailPage'))
+const ExamDetailPage = lazy(() => import('@/pages/ExamDetailPage'))
+const OrderDetailPage = lazy(() => import('@/pages/OrderDetailPage'))
+const ProductDetailPage = lazy(() => import('@/pages/ProductDetailPage'))
 
 function LoadingFallback() {
   return (
@@ -37,6 +43,7 @@ function LoadingFallback() {
 export default function App() {
   return (
     <Suspense fallback={<LoadingFallback />}>
+      <CommandPalette />
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/selecionar-clinica" element={<SelectClinicPage />} />
@@ -49,11 +56,16 @@ export default function App() {
           <Route path="pacientes/:id" element={<PatientDetailPage />} />
           <Route path="agenda" element={<AgendaPage />} />
           <Route path="prontuarios" element={<MedicalRecordsPage />} />
+          <Route path="prontuarios/:id" element={<MedicalRecordDetailPage />} />
           <Route path="internacoes" element={<HospitalizationsPage />} />
+          <Route path="internacoes/:id" element={<HospitalizationDetailPage />} />
           <Route path="exames" element={<ExamsPage />} />
+          <Route path="exames/:id" element={<ExamDetailPage />} />
           <Route path="produtos" element={<ProductsPage />} />
+          <Route path="produtos/:id" element={<ProductDetailPage />} />
           <Route path="movimentacoes" element={<MovementsPage />} />
           <Route path="pedidos" element={<OrdersPage />} />
+          <Route path="pedidos/:id" element={<OrderDetailPage />} />
           <Route path="financeiro" element={<FinancialPage />} />
           <Route path="centros-custo" element={<CostCentersPage />} />
           <Route path="relatorios" element={<ReportsPage />} />
