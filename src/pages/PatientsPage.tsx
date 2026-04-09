@@ -3,8 +3,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Plus, X } from 'lucide-react'
 import { toast } from 'sonner'
-import { patientsApi, type Patient } from '@/api/patients.api'
-import { speciesApi } from '@/api/species.api'
+import { pacientesApi, type Paciente } from '@/api/patients.api'
+import { especiesApi } from '@/api/species.api'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { DatePicker } from '@/components/shared/DatePicker'
 import { DataTable } from '@/components/shared/DataTable'
@@ -12,33 +12,33 @@ import { SearchInput } from '@/components/shared/SearchInput'
 import { TutorSearch } from '@/components/shared/TutorSearch'
 import { formatDate } from '@/lib/utils'
 
-interface PatientFormData {
-  name: string
-  tutor: { id: string; name: string } | null
-  speciesId: string
-  breedId: string
-  sex: string
-  birthDate: Date | null
-  weight: string
-  color: string
+interface FormDadosPaciente {
+  nome: string
+  tutor: { id: string; nome: string } | null
+  especieId: string
+  racaId: string
+  sexo: string
+  dataNascimento: Date | null
+  peso: string
+  cor: string
   microchip: string
-  neutered: boolean
-  allergies: string
-  notes: string
+  castrado: boolean
+  alergias: string
+  observacoes: string
 }
 
-const emptyForm: PatientFormData = {
-  name: '', tutor: null, speciesId: '', breedId: '', sex: 'Unknown',
-  birthDate: null, weight: '', color: '', microchip: '', neutered: false,
-  allergies: '', notes: '',
+const formVazio: FormDadosPaciente = {
+  nome: '', tutor: null, especieId: '', racaId: '', sexo: 'Desconhecido',
+  dataNascimento: null, peso: '', cor: '', microchip: '', castrado: false,
+  alergias: '', observacoes: '',
 }
 
 export default function PatientsPage() {
-  const [page, setPage] = useState(1)
-  const [search, setSearch] = useState('')
-  const [speciesFilter, setSpeciesFilter] = useState('')
+  const [pagina, setPagina] = useState(1)
+  const [busca, setBusca] = useState('')
+  const [filtroEspecie, setFiltroEspecie] = useState('')
   const [showForm, setShowForm] = useState(false)
-  const [form, setForm] = useState<PatientFormData>(emptyForm)
+  const [form, setForm] = useState<FormDadosPaciente>(formVazio)
   const [errors, setErrors] = useState<Record<string, string>>({})
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
@@ -48,18 +48,18 @@ export default function PatientsPage() {
   const presetTutorName = searchParams.get('tutorName')
 
   const { data, isLoading } = useQuery({
-    queryKey: ['patients', page, search, speciesFilter],
-    queryFn: () => patientsApi.list({ page, pageSize: 20, search: search || undefined, speciesId: speciesFilter || undefined }),
+    queryKey: ['pacientes', pagina, busca, filtroEspecie],
+    queryFn: () => pacientesApi.listar({ pagina, tamanhoPagina: 20, busca: busca || undefined, especieId: filtroEspecie || undefined }),
   })
 
-  const { data: speciesList } = useQuery({ queryKey: ['species'], queryFn: speciesApi.list })
+  const { data: listaEspecies } = useQuery({ queryKey: ['especies'], queryFn: especiesApi.listar })
 
   const createMutation = useMutation({
-    mutationFn: patientsApi.create,
+    mutationFn: pacientesApi.criar,
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['patients'] })
+      qc.invalidateQueries({ queryKey: ['pacientes'] })
       setShowForm(false)
-      setForm(emptyForm)
+      setForm(formVazio)
       toast.success('Paciente cadastrado com sucesso!')
     },
     onError: (e: Error & { response?: { data?: { error?: string } } }) =>
@@ -67,9 +67,9 @@ export default function PatientsPage() {
   })
 
   const openForm = () => {
-    const newForm = { ...emptyForm }
+    const newForm = { ...formVazio }
     if (presetTutorId && presetTutorName) {
-      newForm.tutor = { id: presetTutorId, name: presetTutorName }
+      newForm.tutor = { id: presetTutorId, nome: presetTutorName }
     }
     setForm(newForm)
     setErrors({})
@@ -78,9 +78,9 @@ export default function PatientsPage() {
 
   const validate = (): boolean => {
     const errs: Record<string, string> = {}
-    if (!form.name.trim()) errs.name = 'Nome do animal obrigatório'
+    if (!form.nome.trim()) errs.nome = 'Nome do animal obrigatório'
     if (!form.tutor) errs.tutor = 'Selecione o tutor'
-    if (!form.speciesId) errs.speciesId = 'Selecione a espécie'
+    if (!form.especieId) errs.especieId = 'Selecione a espécie'
     setErrors(errs)
     return Object.keys(errs).length === 0
   }
@@ -89,32 +89,32 @@ export default function PatientsPage() {
     e.preventDefault()
     if (!validate()) return
     createMutation.mutate({
-      name: form.name,
+      nome: form.nome,
       tutorId: form.tutor!.id,
-      speciesId: form.speciesId,
-      breedId: form.breedId || undefined,
-      sex: form.sex,
-      birthDate: form.birthDate ? form.birthDate.toISOString() : undefined,
-      weight: form.weight ? Number(form.weight) : undefined,
-      color: form.color || undefined,
+      especieId: form.especieId,
+      racaId: form.racaId || undefined,
+      sexo: form.sexo,
+      dataNascimento: form.dataNascimento ? form.dataNascimento.toISOString() : undefined,
+      peso: form.peso ? Number(form.peso) : undefined,
+      cor: form.cor || undefined,
       microchip: form.microchip || undefined,
-      neutered: form.neutered,
-      allergies: form.allergies || undefined,
-      notes: form.notes || undefined,
+      castrado: form.castrado,
+      alergias: form.alergias || undefined,
+      observacoes: form.observacoes || undefined,
     })
   }
 
-  const selectedSpecies = speciesList?.find(s => s.id === form.speciesId)
+  const especieSelecionada = listaEspecies?.find(s => s.id === form.especieId)
 
   const columns = [
-    { key: 'name', header: 'Nome' },
-    { key: 'tutorName', header: 'Tutor' },
-    { key: 'speciesName', header: 'Espécie' },
-    { key: 'breedName', header: 'Raça', render: (p: Patient) => p.breedName || 'SRD' },
-    { key: 'sex', header: 'Sexo', render: (p: Patient) =>
-      p.sex === 'Male' ? 'Macho' : p.sex === 'Female' ? 'Fêmea' : '—'
+    { key: 'nome', header: 'Nome' },
+    { key: 'nomeTutor', header: 'Tutor' },
+    { key: 'nomeEspecie', header: 'Espécie' },
+    { key: 'nomeRaca', header: 'Raça', render: (p: Paciente) => p.nomeRaca || 'SRD' },
+    { key: 'sexo', header: 'Sexo', render: (p: Paciente) =>
+      p.sexo === 'Macho' ? 'Macho' : p.sexo === 'Femea' ? 'Fêmea' : '—'
     },
-    { key: 'createdAt', header: 'Cadastro', render: (p: Patient) => formatDate(p.createdAt) },
+    { key: 'criadoEm', header: 'Cadastro', render: (p: Paciente) => formatDate(p.criadoEm) },
   ]
 
   return (
@@ -130,19 +130,19 @@ export default function PatientsPage() {
 
       <div className="flex gap-3 mb-4">
         <div className="max-w-sm flex-1">
-          <SearchInput value={search} onChange={(v) => { setSearch(v); setPage(1) }} placeholder="Buscar por nome do animal ou tutor..." />
+          <SearchInput value={busca} onChange={(v) => { setBusca(v); setPagina(1) }} placeholder="Buscar por nome do animal ou tutor..." />
         </div>
-        <select value={speciesFilter} onChange={e => { setSpeciesFilter(e.target.value); setPage(1) }}
+        <select value={filtroEspecie} onChange={e => { setFiltroEspecie(e.target.value); setPagina(1) }}
           className="px-3 py-2 border border-input rounded-lg text-sm bg-background">
           <option value="">Todas espécies</option>
-          {speciesList?.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+          {listaEspecies?.map(s => <option key={s.id} value={s.id}>{s.nome}</option>)}
         </select>
       </div>
 
-      <DataTable columns={columns} data={data?.items ?? []} page={page}
-        totalPages={data ? Math.ceil(data.totalCount / data.pageSize) : 1}
-        onPageChange={setPage} loading={isLoading}
-        onRowClick={(p) => navigate(`/patients/${p.id}`)} />
+      <DataTable columns={columns} data={data?.itens ?? []} page={pagina}
+        totalPages={data ? Math.ceil(data.totalRegistros / data.tamanhoPagina) : 1}
+        onPageChange={setPagina} loading={isLoading}
+        onRowClick={(p) => navigate(`/pacientes/${p.id}`)} />
 
       {showForm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
@@ -168,28 +168,28 @@ export default function PatientsPage() {
 
                 <div>
                   <label className="block text-sm font-medium mb-1">Nome <span className="text-destructive">*</span></label>
-                  <input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })}
-                    className={`w-full px-3 py-2 border rounded-lg text-sm ${errors.name ? 'border-destructive' : 'border-input'}`}
+                  <input value={form.nome} onChange={e => setForm({ ...form, nome: e.target.value })}
+                    className={`w-full px-3 py-2 border rounded-lg text-sm ${errors.nome ? 'border-destructive' : 'border-input'}`}
                     placeholder="Nome do animal" />
-                  {errors.name && <p className="text-xs text-destructive mt-1">{errors.name}</p>}
+                  {errors.nome && <p className="text-xs text-destructive mt-1">{errors.nome}</p>}
                 </div>
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-sm font-medium mb-1">Espécie <span className="text-destructive">*</span></label>
-                    <select value={form.speciesId} onChange={e => setForm({ ...form, speciesId: e.target.value, breedId: '' })}
-                      className={`w-full px-3 py-2 border rounded-lg text-sm ${errors.speciesId ? 'border-destructive' : 'border-input'}`}>
+                    <select value={form.especieId} onChange={e => setForm({ ...form, especieId: e.target.value, racaId: '' })}
+                      className={`w-full px-3 py-2 border rounded-lg text-sm ${errors.especieId ? 'border-destructive' : 'border-input'}`}>
                       <option value="">Selecione...</option>
-                      {speciesList?.map(s => <option key={s.id} value={s.id}>{s.name}</option>)}
+                      {listaEspecies?.map(s => <option key={s.id} value={s.id}>{s.nome}</option>)}
                     </select>
-                    {errors.speciesId && <p className="text-xs text-destructive mt-1">{errors.speciesId}</p>}
+                    {errors.especieId && <p className="text-xs text-destructive mt-1">{errors.especieId}</p>}
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-1">Raça</label>
-                    <select value={form.breedId} onChange={e => setForm({ ...form, breedId: e.target.value })}
-                      className="w-full px-3 py-2 border border-input rounded-lg text-sm" disabled={!form.speciesId}>
+                    <select value={form.racaId} onChange={e => setForm({ ...form, racaId: e.target.value })}
+                      className="w-full px-3 py-2 border border-input rounded-lg text-sm" disabled={!form.especieId}>
                       <option value="">SRD / Não informada</option>
-                      {selectedSpecies?.breeds.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
+                      {especieSelecionada?.racas.map(b => <option key={b.id} value={b.id}>{b.nome}</option>)}
                     </select>
                   </div>
                 </div>
@@ -197,24 +197,24 @@ export default function PatientsPage() {
                 <div className="grid grid-cols-3 gap-3">
                   <div>
                     <label className="block text-sm font-medium mb-1">Sexo</label>
-                    <select value={form.sex} onChange={e => setForm({ ...form, sex: e.target.value })}
+                    <select value={form.sexo} onChange={e => setForm({ ...form, sexo: e.target.value })}
                       className="w-full px-3 py-2 border border-input rounded-lg text-sm">
-                      <option value="Unknown">Não informado</option>
-                      <option value="Male">Macho</option>
-                      <option value="Female">Fêmea</option>
+                      <option value="Desconhecido">Não informado</option>
+                      <option value="Macho">Macho</option>
+                      <option value="Femea">Fêmea</option>
                     </select>
                   </div>
                   <DatePicker
                     label="Nascimento"
-                    value={form.birthDate}
-                    onChange={(date) => setForm({ ...form, birthDate: date })}
+                    value={form.dataNascimento}
+                    onChange={(date) => setForm({ ...form, dataNascimento: date })}
                     maxDate={new Date()}
                     placeholder="Data de nascimento"
                   />
                   <div>
                     <label className="block text-sm font-medium mb-1">Peso (kg)</label>
-                    <input type="number" step="0.1" min="0" value={form.weight}
-                      onChange={e => setForm({ ...form, weight: e.target.value })}
+                    <input type="number" step="0.1" min="0" value={form.peso}
+                      onChange={e => setForm({ ...form, peso: e.target.value })}
                       className="w-full px-3 py-2 border border-input rounded-lg text-sm" placeholder="0.0" />
                   </div>
                 </div>
@@ -222,7 +222,7 @@ export default function PatientsPage() {
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block text-sm font-medium mb-1">Pelagem / Cor</label>
-                    <input value={form.color} onChange={e => setForm({ ...form, color: e.target.value })}
+                    <input value={form.cor} onChange={e => setForm({ ...form, cor: e.target.value })}
                       className="w-full px-3 py-2 border border-input rounded-lg text-sm" placeholder="Ex: Caramelo" />
                   </div>
                   <div>
@@ -233,7 +233,7 @@ export default function PatientsPage() {
                 </div>
 
                 <label className="flex items-center gap-2 cursor-pointer">
-                  <input type="checkbox" checked={form.neutered} onChange={e => setForm({ ...form, neutered: e.target.checked })}
+                  <input type="checkbox" checked={form.castrado} onChange={e => setForm({ ...form, castrado: e.target.checked })}
                     className="rounded border-input" />
                   <span className="text-sm">Castrado(a)</span>
                 </label>
@@ -243,12 +243,12 @@ export default function PatientsPage() {
                 <legend className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-2">Saúde</legend>
                 <div>
                   <label className="block text-sm font-medium mb-1">Alergias conhecidas</label>
-                  <input value={form.allergies} onChange={e => setForm({ ...form, allergies: e.target.value })}
+                  <input value={form.alergias} onChange={e => setForm({ ...form, alergias: e.target.value })}
                     className="w-full px-3 py-2 border border-input rounded-lg text-sm" placeholder="Descreva alergias conhecidas..." />
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">Observações</label>
-                  <textarea value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })}
+                  <textarea value={form.observacoes} onChange={e => setForm({ ...form, observacoes: e.target.value })}
                     className="w-full px-3 py-2 border border-input rounded-lg text-sm h-16 resize-none"
                     placeholder="Observações gerais sobre o animal..." />
                 </div>

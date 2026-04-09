@@ -1,34 +1,57 @@
 import api from './client'
-import type { PagedResponse } from '@/types/common'
+import type { RespostaPaginada } from '@/types/common'
 
-export interface MedicalRecord {
-  id: string; clinicId: string; patientId: string; patientName: string
-  veterinarianId: string; veterinarianName: string; appointmentId?: string
-  chiefComplaint?: string; history?: string; anamnesis?: string
-  weight?: number; temperature?: number; heartRate?: number; respiratoryRate?: number
-  physicalExam?: string; mucous?: string; hydration?: string; lymph?: string
-  diagnosis?: string; differentialDiagnosis?: string; treatment?: string
-  notes?: string; internalNotes?: string
-  createdAt: string; updatedAt: string; prescriptions: Prescription[]
+export interface Prontuario {
+  id: string
+  clinicaId: string
+  pacienteId: string
+  nomePaciente: string
+  veterinarioId: string
+  nomeVeterinario: string
+  agendamentoId?: string
+  queixaPrincipal?: string
+  historico?: string
+  anamnese?: string
+  peso?: number
+  temperatura?: number
+  frequenciaCardiaca?: number
+  frequenciaRespiratoria?: number
+  exameFisico?: string
+  mucosas?: string
+  hidratacao?: string
+  linfonodos?: string
+  diagnostico?: string
+  diagnosticoDiferencial?: string
+  tratamento?: string
+  observacoes?: string
+  notasInternas?: string
+  criadoEm: string
+  atualizadoEm: string
+  prescricoes: Prescricao[]
 }
 
-export interface Prescription {
-  id: string; medicalRecordId: string; medicineName: string; dosage?: string
-  frequency?: string; duration?: string; route?: string; instructions?: string
-  quantity?: number; createdAt: string
+export interface Prescricao {
+  id: string
+  prontuarioId: string
+  nomeMedicamento: string
+  dosagem?: string
+  frequencia?: string
+  duracao?: string
+  viaAdministracao?: string
+  instrucoes?: string
+  quantidade?: number
+  criadoEm: string
 }
 
-export const medicalRecordsApi = {
-  list: (params: Record<string, unknown>) =>
-    api.get<PagedResponse<MedicalRecord>>('/api/medical-records', { params }).then(r => r.data),
-  get: (id: string) =>
-    api.get<MedicalRecord>(`/api/medical-records/${id}`).then(r => r.data),
-  create: (data: Record<string, unknown>) =>
-    api.post('/api/medical-records', data).then(r => r.data),
-  update: (id: string, data: Record<string, unknown>) =>
-    api.put(`/api/medical-records/${id}`, data).then(r => r.data),
-  addPrescription: (id: string, data: Record<string, unknown>) =>
-    api.post(`/api/medical-records/${id}/prescriptions`, data).then(r => r.data),
-  removePrescription: (id: string, prescId: string) =>
-    api.delete(`/api/medical-records/${id}/prescriptions/${prescId}`),
+export const prontuariosApi = {
+  listar: (params: Record<string, unknown>) =>
+    api.get<RespostaPaginada<Prontuario>>('/api/prontuarios', { params }).then(r => r.data),
+  obterPorId: (id: string) =>
+    api.get<Prontuario>(`/api/prontuarios/${id}`).then(r => r.data),
+  criar: (data: Record<string, unknown>) =>
+    api.post('/api/prontuarios', data).then(r => r.data),
+  adicionarPrescricao: (id: string, data: Record<string, unknown>) =>
+    api.post(`/api/prontuarios/${id}/prescricoes`, data).then(r => r.data),
+  removerPrescricao: (id: string, prescId: string) =>
+    api.delete(`/api/prontuarios/${id}/prescricoes/${prescId}`),
 }

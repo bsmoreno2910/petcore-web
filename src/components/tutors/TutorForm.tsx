@@ -4,21 +4,21 @@ import { maskCpf, maskPhone, maskCep, validateCpf, validateEmail } from '@/lib/m
 import type { Tutor } from '@/api/tutors.api'
 
 interface TutorFormData {
-  name: string
+  nome: string
   cpf: string
   rg: string
-  phone: string
-  phoneSecondary: string
+  telefone: string
+  telefoneSecundario: string
   email: string
-  emails: string[] // emails adicionais
-  street: string
-  number: string
-  complement: string
-  neighborhood: string
-  city: string
-  state: string
-  zipCode: string
-  notes: string
+  emails: string[]
+  rua: string
+  numero: string
+  complemento: string
+  bairro: string
+  cidade: string
+  estado: string
+  cep: string
+  observacoes: string
 }
 
 interface TutorFormProps {
@@ -30,15 +30,15 @@ interface TutorFormProps {
   title: string
 }
 
-const STATES = [
+const ESTADOS = [
   'AC','AL','AM','AP','BA','CE','DF','ES','GO','MA','MG','MS','MT',
   'PA','PB','PE','PI','PR','RJ','RN','RO','RR','RS','SC','SE','SP','TO'
 ]
 
 const emptyForm: TutorFormData = {
-  name: '', cpf: '', rg: '', phone: '', phoneSecondary: '',
-  email: '', emails: [], street: '', number: '', complement: '',
-  neighborhood: '', city: '', state: '', zipCode: '', notes: '',
+  nome: '', cpf: '', rg: '', telefone: '', telefoneSecundario: '',
+  email: '', emails: [], rua: '', numero: '', complemento: '',
+  bairro: '', cidade: '', estado: '', cep: '', observacoes: '',
 }
 
 export function TutorForm({ open, onClose, onSubmit, loading, initialData, title }: TutorFormProps) {
@@ -49,21 +49,21 @@ export function TutorForm({ open, onClose, onSubmit, loading, initialData, title
   useEffect(() => {
     if (initialData) {
       setForm({
-        name: initialData.name || '',
+        nome: initialData.nome || '',
         cpf: initialData.cpf || '',
         rg: initialData.rg || '',
-        phone: initialData.phone || '',
-        phoneSecondary: initialData.phoneSecondary || '',
+        telefone: initialData.telefone || '',
+        telefoneSecundario: initialData.telefoneSecundario || '',
         email: initialData.email || '',
         emails: [],
-        street: initialData.street || '',
-        number: initialData.number || '',
-        complement: initialData.complement || '',
-        neighborhood: initialData.neighborhood || '',
-        city: initialData.city || '',
-        state: initialData.state || '',
-        zipCode: initialData.zipCode || '',
-        notes: initialData.notes || '',
+        rua: initialData.rua || '',
+        numero: initialData.numero || '',
+        complemento: initialData.complemento || '',
+        bairro: initialData.bairro || '',
+        cidade: initialData.cidade || '',
+        estado: initialData.estado || '',
+        cep: initialData.cep || '',
+        observacoes: initialData.observacoes || '',
       })
     } else {
       setForm(emptyForm)
@@ -76,23 +76,23 @@ export function TutorForm({ open, onClose, onSubmit, loading, initialData, title
     delete errs[field]
 
     switch (field) {
-      case 'name':
-        if (!form.name.trim()) errs.name = 'Nome obrigatório'
-        else if (form.name.trim().length < 3) errs.name = 'Nome deve ter pelo menos 3 caracteres'
+      case 'nome':
+        if (!form.nome.trim()) errs.nome = 'Nome obrigatório'
+        else if (form.nome.trim().length < 3) errs.nome = 'Nome deve ter pelo menos 3 caracteres'
         break
       case 'cpf':
         if (form.cpf && !validateCpf(form.cpf)) errs.cpf = 'CPF inválido'
         break
-      case 'phone':
-        if (!form.phone.trim()) errs.phone = 'Telefone principal obrigatório'
-        else if (form.phone.replace(/\D/g, '').length < 10) errs.phone = 'Telefone incompleto'
+      case 'telefone':
+        if (!form.telefone.trim()) errs.telefone = 'Telefone principal obrigatório'
+        else if (form.telefone.replace(/\D/g, '').length < 10) errs.telefone = 'Telefone incompleto'
         break
       case 'email':
         if (form.email && !validateEmail(form.email)) errs.email = 'E-mail inválido'
         break
-      case 'zipCode':
-        if (form.zipCode && form.zipCode.replace(/\D/g, '').length > 0 && form.zipCode.replace(/\D/g, '').length < 8)
-          errs.zipCode = 'CEP incompleto'
+      case 'cep':
+        if (form.cep && form.cep.replace(/\D/g, '').length > 0 && form.cep.replace(/\D/g, '').length < 8)
+          errs.cep = 'CEP incompleto'
         break
     }
 
@@ -102,18 +102,18 @@ export function TutorForm({ open, onClose, onSubmit, loading, initialData, title
   const validate = (): boolean => {
     const errs: Record<string, string> = {}
 
-    if (!form.name.trim()) errs.name = 'Nome obrigatório'
-    else if (form.name.trim().length < 3) errs.name = 'Nome deve ter pelo menos 3 caracteres'
+    if (!form.nome.trim()) errs.nome = 'Nome obrigatório'
+    else if (form.nome.trim().length < 3) errs.nome = 'Nome deve ter pelo menos 3 caracteres'
 
     if (form.cpf && !validateCpf(form.cpf)) errs.cpf = 'CPF inválido'
 
-    if (!form.phone.trim()) errs.phone = 'Telefone principal obrigatório'
-    else if (form.phone.replace(/\D/g, '').length < 10) errs.phone = 'Telefone incompleto'
+    if (!form.telefone.trim()) errs.telefone = 'Telefone principal obrigatório'
+    else if (form.telefone.replace(/\D/g, '').length < 10) errs.telefone = 'Telefone incompleto'
 
     if (form.email && !validateEmail(form.email)) errs.email = 'E-mail inválido'
 
-    if (form.zipCode && form.zipCode.replace(/\D/g, '').length > 0 && form.zipCode.replace(/\D/g, '').length < 8)
-      errs.zipCode = 'CEP incompleto'
+    if (form.cep && form.cep.replace(/\D/g, '').length > 0 && form.cep.replace(/\D/g, '').length < 8)
+      errs.cep = 'CEP incompleto'
 
     setErrors(errs)
     return Object.keys(errs).length === 0
@@ -126,20 +126,20 @@ export function TutorForm({ open, onClose, onSubmit, loading, initialData, title
     const allEmails = [form.email, ...form.emails].filter(Boolean).join('; ')
 
     onSubmit({
-      name: form.name.trim(),
+      nome: form.nome.trim(),
       cpf: form.cpf || null,
       rg: form.rg || null,
-      phone: form.phone || null,
-      phoneSecondary: form.phoneSecondary || null,
+      telefone: form.telefone || null,
+      telefoneSecundario: form.telefoneSecundario || null,
       email: allEmails || null,
-      street: form.street || null,
-      number: form.number || null,
-      complement: form.complement || null,
-      neighborhood: form.neighborhood || null,
-      city: form.city || null,
-      state: form.state || null,
-      zipCode: form.zipCode || null,
-      notes: form.notes || null,
+      rua: form.rua || null,
+      numero: form.numero || null,
+      complemento: form.complemento || null,
+      bairro: form.bairro || null,
+      cidade: form.cidade || null,
+      estado: form.estado || null,
+      cep: form.cep || null,
+      observacoes: form.observacoes || null,
     })
   }
 
@@ -155,7 +155,7 @@ export function TutorForm({ open, onClose, onSubmit, loading, initialData, title
   }
 
   const fetchAddress = async () => {
-    const cep = form.zipCode.replace(/\D/g, '')
+    const cep = form.cep.replace(/\D/g, '')
     if (cep.length !== 8) return
     try {
       const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`)
@@ -163,11 +163,11 @@ export function TutorForm({ open, onClose, onSubmit, loading, initialData, title
       if (!data.erro) {
         setForm(f => ({
           ...f,
-          street: data.logradouro || f.street,
-          neighborhood: data.bairro || f.neighborhood,
-          city: data.localidade || f.city,
-          state: data.uf || f.state,
-          complement: data.complemento || f.complement,
+          rua: data.logradouro || f.rua,
+          bairro: data.bairro || f.bairro,
+          cidade: data.localidade || f.cidade,
+          estado: data.uf || f.estado,
+          complemento: data.complemento || f.complemento,
         }))
       }
     } catch { /* ignore */ }
@@ -184,17 +184,16 @@ export function TutorForm({ open, onClose, onSubmit, loading, initialData, title
         </div>
 
         <form onSubmit={handleSubmit} className="p-5 space-y-5">
-          {/* Dados Pessoais */}
           <fieldset className="space-y-3">
             <legend className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-2">Dados Pessoais</legend>
 
             <div>
               <label className="block text-sm font-medium mb-1">Nome completo <span className="text-destructive">*</span></label>
-              <input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })}
-                onBlur={() => validateField('name')}
-                className={`w-full px-3 py-2 border rounded-lg text-sm ${errors.name ? 'border-destructive' : 'border-input'}`}
+              <input value={form.nome} onChange={e => setForm({ ...form, nome: e.target.value })}
+                onBlur={() => validateField('nome')}
+                className={`w-full px-3 py-2 border rounded-lg text-sm ${errors.nome ? 'border-destructive' : 'border-input'}`}
                 placeholder="Nome completo do tutor" />
-              {errors.name && <p className="text-xs text-destructive mt-1">{errors.name}</p>}
+              {errors.nome && <p className="text-xs text-destructive mt-1">{errors.nome}</p>}
             </div>
 
             <div className="grid grid-cols-2 gap-3">
@@ -214,22 +213,21 @@ export function TutorForm({ open, onClose, onSubmit, loading, initialData, title
             </div>
           </fieldset>
 
-          {/* Contato */}
           <fieldset className="space-y-3">
             <legend className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-2">Contato</legend>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className="block text-sm font-medium mb-1">Telefone principal <span className="text-destructive">*</span></label>
-                <input value={form.phone} onChange={e => setForm({ ...form, phone: maskPhone(e.target.value) })}
-                  onBlur={() => validateField('phone')}
-                  className={`w-full px-3 py-2 border rounded-lg text-sm ${errors.phone ? 'border-destructive' : 'border-input'}`}
+                <input value={form.telefone} onChange={e => setForm({ ...form, telefone: maskPhone(e.target.value) })}
+                  onBlur={() => validateField('telefone')}
+                  className={`w-full px-3 py-2 border rounded-lg text-sm ${errors.telefone ? 'border-destructive' : 'border-input'}`}
                   placeholder="(00) 00000-0000" maxLength={15} />
-                {errors.phone && <p className="text-xs text-destructive mt-1">{errors.phone}</p>}
+                {errors.telefone && <p className="text-xs text-destructive mt-1">{errors.telefone}</p>}
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Telefone secundário</label>
-                <input value={form.phoneSecondary} onChange={e => setForm({ ...form, phoneSecondary: maskPhone(e.target.value) })}
+                <input value={form.telefoneSecundario} onChange={e => setForm({ ...form, telefoneSecundario: maskPhone(e.target.value) })}
                   className="w-full px-3 py-2 border border-input rounded-lg text-sm"
                   placeholder="(00) 00000-0000" maxLength={15} />
               </div>
@@ -243,7 +241,6 @@ export function TutorForm({ open, onClose, onSubmit, loading, initialData, title
               {errors.email && <p className="text-xs text-destructive mt-1">{errors.email}</p>}
             </div>
 
-            {/* Emails adicionais */}
             <div>
               <label className="block text-sm font-medium mb-1">E-mails adicionais</label>
               <div className="flex gap-2">
@@ -268,22 +265,21 @@ export function TutorForm({ open, onClose, onSubmit, loading, initialData, title
             </div>
           </fieldset>
 
-          {/* Endereço */}
           <fieldset className="space-y-3">
             <legend className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-2">Endereço</legend>
 
             <div className="grid grid-cols-3 gap-3">
               <div>
                 <label className="block text-sm font-medium mb-1">CEP</label>
-                <input value={form.zipCode} onChange={e => setForm({ ...form, zipCode: maskCep(e.target.value) })}
+                <input value={form.cep} onChange={e => setForm({ ...form, cep: maskCep(e.target.value) })}
                   onBlur={fetchAddress}
-                  className={`w-full px-3 py-2 border rounded-lg text-sm ${errors.zipCode ? 'border-destructive' : 'border-input'}`}
+                  className={`w-full px-3 py-2 border rounded-lg text-sm ${errors.cep ? 'border-destructive' : 'border-input'}`}
                   placeholder="00000-000" maxLength={9} />
-                {errors.zipCode && <p className="text-xs text-destructive mt-1">{errors.zipCode}</p>}
+                {errors.cep && <p className="text-xs text-destructive mt-1">{errors.cep}</p>}
               </div>
               <div className="col-span-2">
                 <label className="block text-sm font-medium mb-1">Rua</label>
-                <input value={form.street} onChange={e => setForm({ ...form, street: e.target.value })}
+                <input value={form.rua} onChange={e => setForm({ ...form, rua: e.target.value })}
                   className="w-full px-3 py-2 border border-input rounded-lg text-sm" placeholder="Logradouro" />
               </div>
             </div>
@@ -291,46 +287,44 @@ export function TutorForm({ open, onClose, onSubmit, loading, initialData, title
             <div className="grid grid-cols-4 gap-3">
               <div>
                 <label className="block text-sm font-medium mb-1">Número</label>
-                <input value={form.number} onChange={e => setForm({ ...form, number: e.target.value })}
+                <input value={form.numero} onChange={e => setForm({ ...form, numero: e.target.value })}
                   className="w-full px-3 py-2 border border-input rounded-lg text-sm" placeholder="Nº" />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Complemento</label>
-                <input value={form.complement} onChange={e => setForm({ ...form, complement: e.target.value })}
+                <input value={form.complemento} onChange={e => setForm({ ...form, complemento: e.target.value })}
                   className="w-full px-3 py-2 border border-input rounded-lg text-sm" placeholder="Apto, Sala..." />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Bairro</label>
-                <input value={form.neighborhood} onChange={e => setForm({ ...form, neighborhood: e.target.value })}
+                <input value={form.bairro} onChange={e => setForm({ ...form, bairro: e.target.value })}
                   className="w-full px-3 py-2 border border-input rounded-lg text-sm" placeholder="Bairro" />
               </div>
               <div className="grid grid-cols-3 gap-2">
                 <div className="col-span-2">
                   <label className="block text-sm font-medium mb-1">Cidade</label>
-                  <input value={form.city} onChange={e => setForm({ ...form, city: e.target.value })}
+                  <input value={form.cidade} onChange={e => setForm({ ...form, cidade: e.target.value })}
                     className="w-full px-3 py-2 border border-input rounded-lg text-sm" placeholder="Cidade" />
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1">UF</label>
-                  <select value={form.state} onChange={e => setForm({ ...form, state: e.target.value })}
+                  <select value={form.estado} onChange={e => setForm({ ...form, estado: e.target.value })}
                     className="w-full px-2 py-2 border border-input rounded-lg text-sm">
                     <option value="">--</option>
-                    {STATES.map(s => <option key={s} value={s}>{s}</option>)}
+                    {ESTADOS.map(s => <option key={s} value={s}>{s}</option>)}
                   </select>
                 </div>
               </div>
             </div>
           </fieldset>
 
-          {/* Observações */}
           <fieldset>
             <legend className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-2">Observações</legend>
-            <textarea value={form.notes} onChange={e => setForm({ ...form, notes: e.target.value })}
+            <textarea value={form.observacoes} onChange={e => setForm({ ...form, observacoes: e.target.value })}
               className="w-full px-3 py-2 border border-input rounded-lg text-sm h-20 resize-none"
               placeholder="Observações sobre o tutor..." />
           </fieldset>
 
-          {/* Actions */}
           <div className="flex justify-end gap-3 pt-2 border-t border-border">
             <button type="button" onClick={onClose} className="px-4 py-2 border border-border rounded-lg text-sm hover:bg-secondary">
               Cancelar

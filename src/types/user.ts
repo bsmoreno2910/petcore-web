@@ -1,17 +1,17 @@
-export interface User {
+export interface Usuario {
   id: string
-  name: string
+  nome: string
   email: string
-  phone?: string
+  telefone?: string
   crmv?: string
   avatarUrl?: string
-  active: boolean
-  createdAt: string
-  clinics: UserClinic[]
+  ativo: boolean
+  criadoEm: string
+  clinicas: UsuarioClinica[]
 }
 
-export interface UserClinic {
-  clinicId: string
-  clinicName: string
-  role: string
+export interface UsuarioClinica {
+  clinicaId: string
+  nomeClinica: string
+  perfil: string
 }

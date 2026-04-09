@@ -2,12 +2,12 @@ import { useState, useEffect, useRef } from 'react'
 import { Search, X, User, UserPlus } from 'lucide-react'
 import { useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { tutorsApi, type Tutor } from '@/api/tutors.api'
+import { tutoresApi, type Tutor } from '@/api/tutors.api'
 import { TutorForm } from '@/components/tutors/TutorForm'
 
 interface TutorSearchProps {
-  value: { id: string; name: string } | null
-  onChange: (tutor: { id: string; name: string } | null) => void
+  value: { id: string; nome: string } | null
+  onChange: (tutor: { id: string; nome: string } | null) => void
   error?: string
   disabled?: boolean
 }
@@ -27,8 +27,8 @@ export function TutorSearch({ value, onChange, error, disabled }: TutorSearchPro
     const timer = setTimeout(async () => {
       setLoading(true)
       try {
-        const data = await tutorsApi.list({ page: 1, pageSize: 8, search: query })
-        setResults(data.items)
+        const data = await tutoresApi.listar({ pagina: 1, tamanhoPagina: 8, busca: query })
+        setResults(data.itens)
         setOpen(true)
       } catch { /* ignore */ }
       finally { setLoading(false) }
@@ -47,9 +47,9 @@ export function TutorSearch({ value, onChange, error, disabled }: TutorSearchPro
   const handleCreateTutor = async (data: Record<string, unknown>) => {
     setCreatingTutor(true)
     try {
-      const created = await tutorsApi.create(data)
-      qc.invalidateQueries({ queryKey: ['tutors'] })
-      onChange({ id: created.id, name: created.name })
+      const created = await tutoresApi.criar(data)
+      qc.invalidateQueries({ queryKey: ['tutores'] })
+      onChange({ id: created.id, nome: created.nome })
       setShowNewTutor(false)
       toast.success('Tutor cadastrado e vinculado!')
     } catch {
@@ -68,7 +68,7 @@ export function TutorSearch({ value, onChange, error, disabled }: TutorSearchPro
             <div className="w-7 h-7 rounded-full bg-accent/10 flex items-center justify-center">
               <User size={14} className="text-accent" />
             </div>
-            <span className="font-medium">{value.name}</span>
+            <span className="font-medium">{value.nome}</span>
           </div>
           {!disabled && (
             <button type="button" onClick={() => { onChange(null); setQuery('') }}
@@ -109,15 +109,15 @@ export function TutorSearch({ value, onChange, error, disabled }: TutorSearchPro
           <div className="absolute z-50 w-full mt-1 bg-card border border-border rounded-lg shadow-lg max-h-60 overflow-y-auto">
             {results.map(t => (
               <button key={t.id} type="button"
-                onClick={() => { onChange({ id: t.id, name: t.name }); setOpen(false); setQuery('') }}
+                onClick={() => { onChange({ id: t.id, nome: t.nome }); setOpen(false); setQuery('') }}
                 className="w-full flex items-start gap-3 px-3 py-2.5 hover:bg-secondary transition-colors text-left border-b border-border last:border-0">
                 <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center mt-0.5">
                   <User size={14} className="text-muted-foreground" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium">{t.name}</p>
+                  <p className="text-sm font-medium">{t.nome}</p>
                   <p className="text-xs text-muted-foreground truncate">
-                    {[t.cpf, t.phone, t.email].filter(Boolean).join(' · ')}
+                    {[t.cpf, t.telefone, t.email].filter(Boolean).join(' · ')}
                   </p>
                 </div>
               </button>

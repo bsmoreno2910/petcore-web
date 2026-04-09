@@ -1,32 +1,15 @@
-export interface LoginRequest {
-  email: string
-  password: string
-}
-
-export interface LoginResponse {
-  accessToken: string
-  refreshToken: string
-  user: UserInfo
-  clinics: ClinicInfo[]
-}
-
-export interface UserInfo {
+export interface InfoUsuario {
   id: string
-  name: string
+  nome: string
   email: string
-  phone?: string
+  telefone?: string
   crmv?: string
   avatarUrl?: string
 }
 
-export interface ClinicInfo {
-  id: string
-  name: string
-  tradeName?: string
-  role: string
-}
-
-export interface ChangePasswordRequest {
-  currentPassword: string
-  newPassword: string
+export interface InfoClinica {
+  clinicaId: string
+  nome: string
+  nomeFantasia?: string
+  perfil: string
 }

@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { ArrowLeft, PawPrint, Phone, Mail, MapPin, Pencil, FileText, User, CreditCard, Plus } from 'lucide-react'
 import { toast } from 'sonner'
-import { tutorsApi } from '@/api/tutors.api'
+import { tutoresApi } from '@/api/tutors.api'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { StatusBadge } from '@/components/shared/StatusBadge'
 import { TutorForm } from '@/components/tutors/TutorForm'
@@ -17,18 +17,18 @@ export default function TutorDetailPage() {
 
   const { data: tutor, isLoading } = useQuery({
     queryKey: ['tutor', id],
-    queryFn: () => tutorsApi.get(id!),
+    queryFn: () => tutoresApi.obterPorId(id!),
     enabled: !!id,
   })
 
-  const { data: financial } = useQuery({
-    queryKey: ['tutor-financial', id],
-    queryFn: () => tutorsApi.financialSummary(id!),
+  const { data: financeiro } = useQuery({
+    queryKey: ['tutor-financeiro', id],
+    queryFn: () => tutoresApi.resumoFinanceiro(id!),
     enabled: !!id,
   })
 
   const updateMutation = useMutation({
-    mutationFn: (data: Record<string, unknown>) => tutorsApi.update(id!, data),
+    mutationFn: (data: Record<string, unknown>) => tutoresApi.atualizar(id!, data),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['tutor', id] })
       setShowEdit(false)
@@ -45,15 +45,15 @@ export default function TutorDetailPage() {
   return (
     <div>
       <PageHeader
-        title={tutor.name}
-        description={`Tutor — ${tutor.patients.length} paciente(s) — Cadastro: ${formatDate(tutor.createdAt)}`}
+        title={tutor.nome}
+        description={`Tutor — ${tutor.pacientes.length} paciente(s) — Cadastro: ${formatDate(tutor.criadoEm)}`}
         actions={
           <div className="flex gap-2">
             <button onClick={() => setShowEdit(true)}
               className="inline-flex items-center gap-2 px-4 py-2 bg-accent text-white rounded-lg text-sm font-medium hover:opacity-90">
               <Pencil size={16} /> Editar
             </button>
-            <button onClick={() => navigate('/tutors')}
+            <button onClick={() => navigate('/tutores')}
               className="inline-flex items-center gap-2 px-4 py-2 border border-border rounded-lg text-sm hover:bg-secondary">
               <ArrowLeft size={16} /> Voltar
             </button>
@@ -62,9 +62,7 @@ export default function TutorDetailPage() {
       />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Coluna esquerda — Dados */}
         <div className="lg:col-span-1 space-y-4">
-          {/* Dados Pessoais */}
           <div className="bg-card border border-border rounded-xl p-5">
             <h3 className="font-semibold mb-3 flex items-center gap-2"><User size={16} /> Dados Pessoais</h3>
             <div className="space-y-2.5 text-sm">
@@ -76,28 +74,25 @@ export default function TutorDetailPage() {
                 </div>
               )}
               {tutor.rg && (
-                <div>
-                  <span className="text-muted-foreground">RG:</span> {tutor.rg}
-                </div>
+                <div><span className="text-muted-foreground">RG:</span> {tutor.rg}</div>
               )}
             </div>
           </div>
 
-          {/* Contato */}
           <div className="bg-card border border-border rounded-xl p-5">
             <h3 className="font-semibold mb-3 flex items-center gap-2"><Phone size={16} /> Contato</h3>
             <div className="space-y-2.5 text-sm">
-              {tutor.phone && (
+              {tutor.telefone && (
                 <div className="flex items-center gap-2">
                   <Phone size={14} className="text-green-500" />
-                  <span>{tutor.phone}</span>
+                  <span>{tutor.telefone}</span>
                   <span className="text-xs text-muted-foreground">(principal)</span>
                 </div>
               )}
-              {tutor.phoneSecondary && (
+              {tutor.telefoneSecundario && (
                 <div className="flex items-center gap-2">
                   <Phone size={14} className="text-muted-foreground" />
-                  <span>{tutor.phoneSecondary}</span>
+                  <span>{tutor.telefoneSecundario}</span>
                   <span className="text-xs text-muted-foreground">(secundário)</span>
                 </div>
               )}
@@ -115,80 +110,76 @@ export default function TutorDetailPage() {
             </div>
           </div>
 
-          {/* Endereço */}
-          {(tutor.street || tutor.city) && (
+          {(tutor.rua || tutor.cidade) && (
             <div className="bg-card border border-border rounded-xl p-5">
               <h3 className="font-semibold mb-3 flex items-center gap-2"><MapPin size={16} /> Endereço</h3>
               <div className="text-sm space-y-1">
-                {tutor.street && <p>{tutor.street}{tutor.number ? `, ${tutor.number}` : ''}</p>}
-                {tutor.complement && <p>{tutor.complement}</p>}
-                {tutor.neighborhood && <p>{tutor.neighborhood}</p>}
-                {tutor.city && <p>{tutor.city}/{tutor.state} {tutor.zipCode ? `— CEP: ${tutor.zipCode}` : ''}</p>}
+                {tutor.rua && <p>{tutor.rua}{tutor.numero ? `, ${tutor.numero}` : ''}</p>}
+                {tutor.complemento && <p>{tutor.complemento}</p>}
+                {tutor.bairro && <p>{tutor.bairro}</p>}
+                {tutor.cidade && <p>{tutor.cidade}/{tutor.estado} {tutor.cep ? `— CEP: ${tutor.cep}` : ''}</p>}
               </div>
             </div>
           )}
 
-          {/* Financeiro */}
-          {financial && (
+          {financeiro && (
             <div className="bg-card border border-border rounded-xl p-5">
               <h3 className="font-semibold mb-3 flex items-center gap-2"><CreditCard size={16} /> Financeiro</h3>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Total</span>
-                  <span className="font-medium">{formatCurrency(financial.totalRevenue)}</span>
+                  <span className="font-medium">{formatCurrency(financeiro.totalReceita)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Pago</span>
-                  <span className="text-green-600 font-medium">{formatCurrency(financial.totalPaid)}</span>
+                  <span className="text-green-600 font-medium">{formatCurrency(financeiro.totalPago)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Pendente</span>
-                  <span className="text-yellow-600 font-medium">{formatCurrency(financial.totalPending)}</span>
+                  <span className="text-yellow-600 font-medium">{formatCurrency(financeiro.totalPendente)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Vencido</span>
-                  <span className="text-red-600 font-medium">{formatCurrency(financial.totalOverdue)}</span>
+                  <span className="text-red-600 font-medium">{formatCurrency(financeiro.totalAtrasado)}</span>
                 </div>
               </div>
             </div>
           )}
 
-          {/* Observações */}
-          {tutor.notes && (
+          {tutor.observacoes && (
             <div className="bg-card border border-border rounded-xl p-5">
               <h3 className="font-semibold mb-3 flex items-center gap-2"><FileText size={16} /> Observações</h3>
-              <p className="text-sm text-muted-foreground whitespace-pre-wrap">{tutor.notes}</p>
+              <p className="text-sm text-muted-foreground whitespace-pre-wrap">{tutor.observacoes}</p>
             </div>
           )}
         </div>
 
-        {/* Coluna direita — Pacientes */}
         <div className="lg:col-span-2">
           <div className="bg-card border border-border rounded-xl p-5">
             <div className="flex items-center justify-between mb-4">
               <h3 className="font-semibold flex items-center gap-2">
-                <PawPrint size={16} /> Pacientes ({tutor.patients.length})
+                <PawPrint size={16} /> Pacientes ({tutor.pacientes.length})
               </h3>
-              <button onClick={() => navigate(`/patients?tutorId=${tutor.id}&tutorName=${encodeURIComponent(tutor.name)}`)}
+              <button onClick={() => navigate(`/pacientes?tutorId=${tutor.id}&tutorName=${encodeURIComponent(tutor.nome)}`)}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-accent text-white rounded-lg text-xs font-medium hover:opacity-90">
                 <Plus size={14} /> Novo Paciente
               </button>
             </div>
-            {tutor.patients.length === 0 ? (
+            {tutor.pacientes.length === 0 ? (
               <div className="text-center py-8">
                 <PawPrint size={40} className="text-muted-foreground mx-auto mb-3" />
                 <p className="text-muted-foreground">Nenhum paciente cadastrado.</p>
-                <button onClick={() => navigate('/patients')}
+                <button onClick={() => navigate('/pacientes')}
                   className="mt-3 px-4 py-2 bg-accent text-white rounded-lg text-sm hover:opacity-90">
                   Cadastrar Paciente
                 </button>
               </div>
             ) : (
               <div className="space-y-2">
-                {tutor.patients.map((p: { id: string; name: string; speciesName: string; breedName?: string; active: boolean }) => (
+                {tutor.pacientes.map((p) => (
                   <button
                     key={p.id}
-                    onClick={() => navigate(`/patients/${p.id}`)}
+                    onClick={() => navigate(`/pacientes/${p.id}`)}
                     className="w-full flex items-center justify-between p-4 rounded-lg border border-border hover:bg-secondary transition-colors text-left"
                   >
                     <div className="flex items-center gap-3">
@@ -196,13 +187,13 @@ export default function TutorDetailPage() {
                         <PawPrint size={18} className="text-accent" />
                       </div>
                       <div>
-                        <p className="font-medium text-sm">{p.name}</p>
+                        <p className="font-medium text-sm">{p.nome}</p>
                         <p className="text-xs text-muted-foreground">
-                          {p.speciesName}{p.breedName ? ` — ${p.breedName}` : ''}
+                          {p.nomeEspecie}{p.nomeRaca ? ` — ${p.nomeRaca}` : ''}
                         </p>
                       </div>
                     </div>
-                    <StatusBadge status={p.active ? 'Active' : 'Cancelled'} />
+                    <StatusBadge status={p.ativo ? 'Ativo' : 'Inativo'} />
                   </button>
                 ))}
               </div>

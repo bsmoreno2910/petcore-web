@@ -6,7 +6,7 @@ import timeGridPlugin from '@fullcalendar/timegrid'
 import interactionPlugin from '@fullcalendar/interaction'
 import { Plus } from 'lucide-react'
 import { toast } from 'sonner'
-import { appointmentsApi } from '@/api/appointments.api'
+import { agendamentosApi } from '@/api/appointments.api'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { StatusBadge } from '@/components/shared/StatusBadge'
 
@@ -17,34 +17,34 @@ export default function AgendaPage() {
   const qc = useQueryClient()
 
   const { data: events } = useQuery({
-    queryKey: ['calendar', dateRange.start, dateRange.end],
-    queryFn: () => appointmentsApi.calendar(dateRange.start, dateRange.end),
+    queryKey: ['agendamentos', dateRange.start, dateRange.end],
+    queryFn: () => agendamentosApi.calendario(dateRange.start, dateRange.end),
     enabled: !!dateRange.start && !!dateRange.end,
   })
 
   const { data: appointment } = useQuery({
-    queryKey: ['appointment', selectedEvent],
-    queryFn: () => appointmentsApi.get(selectedEvent!),
+    queryKey: ['agendamento', selectedEvent],
+    queryFn: () => agendamentosApi.obterPorId(selectedEvent!),
     enabled: !!selectedEvent,
   })
 
   const statusMutation = useMutation({
     mutationFn: ({ id, action }: { id: string; action: string }) => {
       const actions: Record<string, (id: string) => Promise<unknown>> = {
-        confirm: appointmentsApi.confirm, checkIn: appointmentsApi.checkIn,
-        start: appointmentsApi.start, complete: appointmentsApi.complete,
-        noShow: appointmentsApi.noShow,
+        confirmar: agendamentosApi.confirmar, checkin: agendamentosApi.checkin,
+        iniciar: agendamentosApi.iniciar, concluir: agendamentosApi.concluir,
+        faltou: agendamentosApi.faltou,
       }
       return actions[action](id)
     },
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['calendar'] }); qc.invalidateQueries({ queryKey: ['appointment'] }); toast.success('Status atualizado!') },
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['agendamentos'] }); qc.invalidateQueries({ queryKey: ['agendamento'] }); toast.success('Status atualizado!') },
   })
 
-  const [form, setForm] = useState({ patientId: '', veterinarianId: '', type: 'Consultation', scheduledAt: '', durationMinutes: 30, reason: '' })
+  const [form, setForm] = useState({ pacienteId: '', veterinarioId: '', tipo: 'Consultation', dataHoraAgendada: '', duracaoMinutos: 30, motivo: '' })
 
   const createMutation = useMutation({
-    mutationFn: appointmentsApi.create,
-    onSuccess: () => { qc.invalidateQueries({ queryKey: ['calendar'] }); setShowForm(false); toast.success('Agendamento criado!') },
+    mutationFn: agendamentosApi.criar,
+    onSuccess: () => { qc.invalidateQueries({ queryKey: ['agendamentos'] }); setShowForm(false); toast.success('Agendamento criado!') },
     onError: (e: Error & { response?: { data?: { error?: string } } }) => toast.error(e.response?.data?.error || 'Erro ao agendar'),
   })
 
@@ -75,7 +75,7 @@ export default function AgendaPage() {
             slotMaxTime="20:00:00"
             allDaySlot={false}
             height="auto"
-            events={events?.map(e => ({ id: e.id, title: e.title, start: e.start, end: e.end, backgroundColor: e.color, borderColor: e.color })) ?? []}
+            events={events?.map(e => ({ id: e.id, title: e.titulo, start: e.inicio, end: e.fim, backgroundColor: e.cor, borderColor: e.cor })) ?? []}
             eventClick={(info) => setSelectedEvent(info.event.id)}
             datesSet={handleDatesSet}
           />
@@ -84,26 +84,26 @@ export default function AgendaPage() {
         <div>
           {appointment ? (
             <div className="bg-card border border-border rounded-xl p-5 space-y-3">
-              <h3 className="font-semibold">{appointment.patientName}</h3>
-              <p className="text-sm text-muted-foreground">{appointment.tutorName}</p>
+              <h3 className="font-semibold">{appointment.nomePaciente}</h3>
+              <p className="text-sm text-muted-foreground">{appointment.nomeTutor}</p>
               <StatusBadge status={appointment.status} />
               <div className="text-sm space-y-1">
-                <p><span className="text-muted-foreground">Tipo:</span> {appointment.type}</p>
-                <p><span className="text-muted-foreground">Vet:</span> {appointment.veterinarianName || '—'}</p>
-                <p><span className="text-muted-foreground">Motivo:</span> {appointment.reason || '—'}</p>
+                <p><span className="text-muted-foreground">Tipo:</span> {appointment.tipo}</p>
+                <p><span className="text-muted-foreground">Vet:</span> {appointment.nomeVeterinario || '—'}</p>
+                <p><span className="text-muted-foreground">Motivo:</span> {appointment.motivo || '—'}</p>
               </div>
               <div className="flex flex-wrap gap-2 pt-2">
                 {appointment.status === 'Scheduled' && (
-                  <button onClick={() => statusMutation.mutate({ id: appointment.id, action: 'confirm' })} className="px-3 py-1.5 bg-cyan-500 text-white rounded text-xs">Confirmar</button>
+                  <button onClick={() => statusMutation.mutate({ id: appointment.id, action: 'confirmar' })} className="px-3 py-1.5 bg-cyan-500 text-white rounded text-xs">Confirmar</button>
                 )}
                 {appointment.status === 'Confirmed' && (
-                  <button onClick={() => statusMutation.mutate({ id: appointment.id, action: 'checkIn' })} className="px-3 py-1.5 bg-indigo-500 text-white rounded text-xs">Check-in</button>
+                  <button onClick={() => statusMutation.mutate({ id: appointment.id, action: 'checkin' })} className="px-3 py-1.5 bg-indigo-500 text-white rounded text-xs">Check-in</button>
                 )}
                 {appointment.status === 'CheckedIn' && (
-                  <button onClick={() => statusMutation.mutate({ id: appointment.id, action: 'start' })} className="px-3 py-1.5 bg-yellow-500 text-white rounded text-xs">Iniciar</button>
+                  <button onClick={() => statusMutation.mutate({ id: appointment.id, action: 'iniciar' })} className="px-3 py-1.5 bg-yellow-500 text-white rounded text-xs">Iniciar</button>
                 )}
                 {appointment.status === 'InProgress' && (
-                  <button onClick={() => statusMutation.mutate({ id: appointment.id, action: 'complete' })} className="px-3 py-1.5 bg-green-500 text-white rounded text-xs">Concluir</button>
+                  <button onClick={() => statusMutation.mutate({ id: appointment.id, action: 'concluir' })} className="px-3 py-1.5 bg-green-500 text-white rounded text-xs">Concluir</button>
                 )}
               </div>
             </div>
@@ -120,11 +120,11 @@ export default function AgendaPage() {
           <div className="bg-card rounded-xl shadow-lg p-6 w-full max-w-lg mx-4">
             <h3 className="text-lg font-semibold mb-4">Novo Agendamento</h3>
             <form onSubmit={(e) => { e.preventDefault(); createMutation.mutate(form) }} className="space-y-3">
-              <input required placeholder="ID do Paciente *" value={form.patientId} onChange={e => setForm({ ...form, patientId: e.target.value })}
+              <input required placeholder="ID do Paciente *" value={form.pacienteId} onChange={e => setForm({ ...form, pacienteId: e.target.value })}
                 className="w-full px-3 py-2 border border-input rounded-lg text-sm" />
-              <input placeholder="ID do Veterinário" value={form.veterinarianId} onChange={e => setForm({ ...form, veterinarianId: e.target.value })}
+              <input placeholder="ID do Veterinário" value={form.veterinarioId} onChange={e => setForm({ ...form, veterinarioId: e.target.value })}
                 className="w-full px-3 py-2 border border-input rounded-lg text-sm" />
-              <select value={form.type} onChange={e => setForm({ ...form, type: e.target.value })}
+              <select value={form.tipo} onChange={e => setForm({ ...form, tipo: e.target.value })}
                 className="w-full px-3 py-2 border border-input rounded-lg text-sm">
                 <option value="Consultation">Consulta</option>
                 <option value="Return">Retorno</option>
@@ -134,11 +134,11 @@ export default function AgendaPage() {
                 <option value="GroomingBath">Banho e Tosa</option>
                 <option value="Emergency">Emergência</option>
               </select>
-              <input required type="datetime-local" value={form.scheduledAt} onChange={e => setForm({ ...form, scheduledAt: e.target.value })}
+              <input required type="datetime-local" value={form.dataHoraAgendada} onChange={e => setForm({ ...form, dataHoraAgendada: e.target.value })}
                 className="w-full px-3 py-2 border border-input rounded-lg text-sm" />
-              <input type="number" placeholder="Duração (min)" value={form.durationMinutes} onChange={e => setForm({ ...form, durationMinutes: Number(e.target.value) })}
+              <input type="number" placeholder="Duração (min)" value={form.duracaoMinutos} onChange={e => setForm({ ...form, duracaoMinutos: Number(e.target.value) })}
                 className="w-full px-3 py-2 border border-input rounded-lg text-sm" />
-              <input placeholder="Motivo" value={form.reason} onChange={e => setForm({ ...form, reason: e.target.value })}
+              <input placeholder="Motivo" value={form.motivo} onChange={e => setForm({ ...form, motivo: e.target.value })}
                 className="w-full px-3 py-2 border border-input rounded-lg text-sm" />
               <div className="flex justify-end gap-3 pt-2">
                 <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 border border-border rounded-lg text-sm">Cancelar</button>

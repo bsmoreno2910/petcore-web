@@ -3,29 +3,29 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import { Plus, Pencil, PawPrint } from 'lucide-react'
 import { toast } from 'sonner'
-import { tutorsApi, type Tutor } from '@/api/tutors.api'
+import { tutoresApi, type Tutor } from '@/api/tutors.api'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { DataTable } from '@/components/shared/DataTable'
 import { SearchInput } from '@/components/shared/SearchInput'
 import { TutorForm } from '@/components/tutors/TutorForm'
 
 export default function TutorsPage() {
-  const [page, setPage] = useState(1)
-  const [search, setSearch] = useState('')
+  const [pagina, setPagina] = useState(1)
+  const [busca, setBusca] = useState('')
   const [formMode, setFormMode] = useState<'create' | 'edit' | null>(null)
   const [editingTutor, setEditingTutor] = useState<Tutor | null>(null)
   const navigate = useNavigate()
   const qc = useQueryClient()
 
   const { data, isLoading } = useQuery({
-    queryKey: ['tutors', page, search],
-    queryFn: () => tutorsApi.list({ page, pageSize: 20, search: search || undefined }),
+    queryKey: ['tutores', pagina, busca],
+    queryFn: () => tutoresApi.listar({ pagina, tamanhoPagina: 20, busca: busca || undefined }),
   })
 
   const createMutation = useMutation({
-    mutationFn: tutorsApi.create,
+    mutationFn: tutoresApi.criar,
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['tutors'] })
+      qc.invalidateQueries({ queryKey: ['tutores'] })
       setFormMode(null)
       toast.success('Tutor cadastrado com sucesso!')
     },
@@ -35,9 +35,9 @@ export default function TutorsPage() {
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }: { id: string; data: Record<string, unknown> }) =>
-      tutorsApi.update(id, data),
+      tutoresApi.atualizar(id, data),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['tutors'] })
+      qc.invalidateQueries({ queryKey: ['tutores'] })
       setFormMode(null)
       setEditingTutor(null)
       toast.success('Tutor atualizado com sucesso!')
@@ -61,9 +61,9 @@ export default function TutorsPage() {
   }
 
   const columns = [
-    { key: 'name', header: 'Nome' },
+    { key: 'nome', header: 'Nome' },
     { key: 'cpf', header: 'CPF', render: (t: Tutor) => t.cpf || '—' },
-    { key: 'phone', header: 'Telefone', render: (t: Tutor) => t.phone || '—' },
+    { key: 'telefone', header: 'Telefone', render: (t: Tutor) => t.telefone || '—' },
     { key: 'email', header: 'E-mail', render: (t: Tutor) => {
       const emails = (t.email || '').split(';').map(e => e.trim()).filter(Boolean)
       return emails.length > 0 ? (
@@ -73,14 +73,14 @@ export default function TutorsPage() {
         </div>
       ) : '—'
     }},
-    { key: 'city', header: 'Cidade', render: (t: Tutor) =>
-      t.city ? `${t.city}/${t.state || ''}` : '—'
+    { key: 'cidade', header: 'Cidade', render: (t: Tutor) =>
+      t.cidade ? `${t.cidade}/${t.estado || ''}` : '—'
     },
-    { key: 'patientCount', header: 'Pets', className: 'text-center',
+    { key: 'quantidadePacientes', header: 'Pets', className: 'text-center',
       render: (t: Tutor) => (
         <span className="inline-flex items-center gap-1">
           <PawPrint size={14} className="text-muted-foreground" />
-          {t.patientCount}
+          {t.quantidadePacientes}
         </span>
       )
     },
@@ -108,17 +108,17 @@ export default function TutorsPage() {
       />
 
       <div className="mb-4 max-w-sm">
-        <SearchInput value={search} onChange={(v) => { setSearch(v); setPage(1) }} placeholder="Buscar por nome, e-mail ou CPF..." />
+        <SearchInput value={busca} onChange={(v) => { setBusca(v); setPagina(1) }} placeholder="Buscar por nome, e-mail ou CPF..." />
       </div>
 
       <DataTable
         columns={columns}
-        data={data?.items ?? []}
-        page={page}
-        totalPages={data ? Math.ceil(data.totalCount / data.pageSize) : 1}
-        onPageChange={setPage}
+        data={data?.itens ?? []}
+        page={pagina}
+        totalPages={data ? Math.ceil(data.totalRegistros / data.tamanhoPagina) : 1}
+        onPageChange={setPagina}
         loading={isLoading}
-        onRowClick={(t) => navigate(`/tutors/${t.id}`)}
+        onRowClick={(t) => navigate(`/tutores/${t.id}`)}
       />
 
       <TutorForm

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { medicalRecordsApi, type MedicalRecord } from '@/api/medical-records.api'
+import { prontuariosApi, type Prontuario } from '@/api/medical-records.api'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { DataTable } from '@/components/shared/DataTable'
 import { SearchInput } from '@/components/shared/SearchInput'
@@ -11,17 +11,17 @@ export default function MedicalRecordsPage() {
   const [patientId, setPatientId] = useState('')
 
   const { data, isLoading } = useQuery({
-    queryKey: ['medical-records', page, patientId],
-    queryFn: () => medicalRecordsApi.list({ page, pageSize: 20, patientId: patientId || undefined }),
+    queryKey: ['prontuarios', page, patientId],
+    queryFn: () => prontuariosApi.listar({ pagina: page, tamanhoPagina: 20, pacienteId: patientId || undefined }),
   })
 
   const columns = [
-    { key: 'createdAt', header: 'Data', render: (r: MedicalRecord) => formatDateTime(r.createdAt) },
-    { key: 'patientName', header: 'Paciente' },
-    { key: 'veterinarianName', header: 'Veterinário' },
-    { key: 'chiefComplaint', header: 'Queixa Principal', render: (r: MedicalRecord) => r.chiefComplaint || '—' },
-    { key: 'diagnosis', header: 'Diagnóstico', render: (r: MedicalRecord) => r.diagnosis || '—' },
-    { key: 'prescriptions', header: 'Prescrições', render: (r: MedicalRecord) => r.prescriptions.length, className: 'text-center' },
+    { key: 'criadoEm', header: 'Data', render: (r: Prontuario) => formatDateTime(r.criadoEm) },
+    { key: 'nomePaciente', header: 'Paciente' },
+    { key: 'nomeVeterinario', header: 'Veterinário' },
+    { key: 'queixaPrincipal', header: 'Queixa Principal', render: (r: Prontuario) => r.queixaPrincipal || '—' },
+    { key: 'diagnostico', header: 'Diagnóstico', render: (r: Prontuario) => r.diagnostico || '—' },
+    { key: 'prescricoes', header: 'Prescrições', render: (r: Prontuario) => r.prescricoes.length, className: 'text-center' },
   ]
 
   return (
@@ -30,8 +30,8 @@ export default function MedicalRecordsPage() {
       <div className="mb-4 max-w-sm">
         <SearchInput value={patientId} onChange={setPatientId} placeholder="Filtrar por ID do paciente..." />
       </div>
-      <DataTable columns={columns} data={data?.items ?? []} page={page}
-        totalPages={data ? Math.ceil(data.totalCount / data.pageSize) : 1}
+      <DataTable columns={columns} data={data?.itens ?? []} page={page}
+        totalPages={data ? Math.ceil(data.totalRegistros / data.tamanhoPagina) : 1}
         onPageChange={setPage} loading={isLoading} />
     </div>
   )

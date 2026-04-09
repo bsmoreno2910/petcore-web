@@ -1,15 +1,22 @@
 import api from './client'
 
-export interface Species {
-  id: string; name: string; active: boolean; breeds: Breed[]
-}
-export interface Breed {
-  id: string; speciesId: string; name: string; active: boolean
+export interface Especie {
+  id: string
+  nome: string
+  ativo: boolean
+  racas: Raca[]
 }
 
-export const speciesApi = {
-  list: () => api.get<Species[]>('/api/species').then(r => r.data),
-  create: (name: string) => api.post('/api/species', { name }).then(r => r.data),
-  breeds: (speciesId: string) => api.get<Breed[]>(`/api/species/${speciesId}/breeds`).then(r => r.data),
-  createBreed: (speciesId: string, name: string) => api.post(`/api/species/${speciesId}/breeds`, { name }).then(r => r.data),
+export interface Raca {
+  id: string
+  especieId: string
+  nome: string
+  ativo: boolean
+}
+
+export const especiesApi = {
+  listar: () => api.get<Especie[]>('/api/especies').then(r => r.data),
+  criar: (nome: string) => api.post('/api/especies', { nome }).then(r => r.data),
+  listarRacas: (especieId: string) => api.get<Raca[]>(`/api/especies/${especieId}/racas`).then(r => r.data),
+  criarRaca: (especieId: string, nome: string) => api.post(`/api/especies/${especieId}/racas`, { nome }).then(r => r.data),
 }

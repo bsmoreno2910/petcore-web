@@ -1,13 +1,13 @@
 import api from './client'
-import type { Clinic, ClinicUser } from '@/types/clinic'
+import type { Clinica, ClinicaUsuario } from '@/types/clinic'
 
-export const clinicsApi = {
-  list: () => api.get<Clinic[]>('/api/clinics').then(r => r.data),
-  get: (id: string) => api.get<Clinic>(`/api/clinics/${id}`).then(r => r.data),
-  create: (data: Record<string, unknown>) => api.post('/api/clinics', data).then(r => r.data),
-  update: (id: string, data: Record<string, unknown>) => api.put(`/api/clinics/${id}`, data).then(r => r.data),
-  toggleActive: (id: string) => api.patch(`/api/clinics/${id}/toggle-active`).then(r => r.data),
-  users: (id: string) => api.get<ClinicUser[]>(`/api/clinics/${id}/users`).then(r => r.data),
-  addUser: (id: string, data: { userId: string; role: string }) => api.post(`/api/clinics/${id}/users`, data).then(r => r.data),
-  removeUser: (id: string, userId: string) => api.delete(`/api/clinics/${id}/users/${userId}`),
+export const clinicasApi = {
+  listar: () => api.get<Clinica[]>('/api/clinicas').then(r => r.data),
+  obterPorId: (id: string) => api.get<Clinica>(`/api/clinicas/${id}`).then(r => r.data),
+  criar: (data: Record<string, unknown>) => api.post('/api/clinicas', data).then(r => r.data),
+  atualizar: (id: string, data: Record<string, unknown>) => api.put(`/api/clinicas/${id}`, data).then(r => r.data),
+  alternarStatus: (id: string) => api.patch(`/api/clinicas/${id}/alternar-status`).then(r => r.data),
+  listarUsuarios: (id: string) => api.get<ClinicaUsuario[]>(`/api/clinicas/${id}/usuarios`).then(r => r.data),
+  adicionarUsuario: (id: string, data: { usuarioId: string; perfil: string }) => api.post(`/api/clinicas/${id}/usuarios`, data).then(r => r.data),
+  removerUsuario: (id: string, usuarioId: string) => api.delete(`/api/clinicas/${id}/usuarios/${usuarioId}`),
 }

@@ -1,32 +1,58 @@
 import api from './client'
-import type { PagedResponse } from '@/types/common'
+import type { RespostaPaginada } from '@/types/common'
 
-export interface ProductCategory {
-  id: string; name: string; description?: string; color?: string; active: boolean
-}
-export interface ProductUnit {
-  id: string; abbreviation: string; name: string
-}
-export interface Product {
-  id: string; clinicId: string; categoryId: string; categoryName: string; categoryColor?: string
-  unitId: string; unitAbbreviation: string; name: string; presentation?: string
-  currentStock: number; minStock: number; maxStock?: number
-  costPrice?: number; sellingPrice?: number; location?: string
-  barcode?: string; batch?: string; expirationDate?: string
-  active: boolean; notes?: string; createdAt: string; stockStatus: string
+export interface CategoriaProduto {
+  id: string
+  nome: string
+  descricao?: string
+  cor?: string
+  ativo: boolean
 }
 
-export const productsApi = {
-  categories: () => api.get<ProductCategory[]>('/api/product-categories').then(r => r.data),
-  createCategory: (data: Record<string, unknown>) => api.post('/api/product-categories', data).then(r => r.data),
-  units: () => api.get<ProductUnit[]>('/api/product-units').then(r => r.data),
-  list: (params: Record<string, unknown>) =>
-    api.get<PagedResponse<Product>>('/api/products', { params }).then(r => r.data),
-  get: (id: string) => api.get<Product>(`/api/products/${id}`).then(r => r.data),
-  create: (data: Record<string, unknown>) => api.post('/api/products', data).then(r => r.data),
-  update: (id: string, data: Record<string, unknown>) => api.put(`/api/products/${id}`, data).then(r => r.data),
-  delete: (id: string) => api.delete(`/api/products/${id}`),
-  lowStock: () => api.get<Product[]>('/api/products/low-stock').then(r => r.data),
-  zeroStock: () => api.get<Product[]>('/api/products/zero-stock').then(r => r.data),
-  expiring: (days?: number) => api.get<Product[]>('/api/products/expiring', { params: { daysAhead: days } }).then(r => r.data),
+export interface UnidadeProduto {
+  id: string
+  sigla: string
+  nome: string
+}
+
+export interface Produto {
+  id: string
+  clinicaId: string
+  categoriaId: string
+  nomeCategoria: string
+  corCategoria?: string
+  unidadeId: string
+  siglaUnidade: string
+  nome: string
+  apresentacao?: string
+  estoqueAtual: number
+  estoqueMinimo: number
+  estoqueMaximo?: number
+  precoCusto?: number
+  precoVenda?: number
+  localizacao?: string
+  codigoBarras?: string
+  lote?: string
+  dataValidade?: string
+  ativo: boolean
+  observacoes?: string
+  criadoEm: string
+  statusEstoque: string
+}
+
+export const produtosApi = {
+  listarCategorias: () => api.get<CategoriaProduto[]>('/api/categorias-produto').then(r => r.data),
+  criarCategoria: (data: Record<string, unknown>) => api.post('/api/categorias-produto', data).then(r => r.data),
+  atualizarCategoria: (id: string, data: Record<string, unknown>) => api.put(`/api/categorias-produto/${id}`, data).then(r => r.data),
+  listarUnidades: () => api.get<UnidadeProduto[]>('/api/unidades-produto').then(r => r.data),
+  criarUnidade: (data: Record<string, unknown>) => api.post('/api/unidades-produto', data).then(r => r.data),
+  listar: (params: Record<string, unknown>) =>
+    api.get<RespostaPaginada<Produto>>('/api/produtos', { params }).then(r => r.data),
+  obterPorId: (id: string) => api.get<Produto>(`/api/produtos/${id}`).then(r => r.data),
+  criar: (data: Record<string, unknown>) => api.post('/api/produtos', data).then(r => r.data),
+  atualizar: (id: string, data: Record<string, unknown>) => api.put(`/api/produtos/${id}`, data).then(r => r.data),
+  excluir: (id: string) => api.delete(`/api/produtos/${id}`),
+  estoqueBaixo: () => api.get<Produto[]>('/api/produtos/estoque-baixo').then(r => r.data),
+  estoqueZerado: () => api.get<Produto[]>('/api/produtos/estoque-zerado').then(r => r.data),
+  vencimentoProximo: (dias?: number) => api.get<Produto[]>('/api/produtos/vencimento-proximo', { params: { dias } }).then(r => r.data),
 }

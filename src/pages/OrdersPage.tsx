@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { Plus, Send, Check, PackageCheck, X } from 'lucide-react'
 import { toast } from 'sonner'
-import { ordersApi, type Order } from '@/api/orders.api'
+import { pedidosApi, type Pedido } from '@/api/orders.api'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { StatusBadge } from '@/components/shared/StatusBadge'
 import { ExportButton } from '@/components/shared/ExportButton'
@@ -12,12 +12,12 @@ export default function OrdersPage() {
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const qc = useQueryClient()
 
-  const { data: orders, isLoading } = useQuery({ queryKey: ['orders'], queryFn: ordersApi.list })
-  const { data: order } = useQuery({ queryKey: ['order', selectedId], queryFn: () => ordersApi.get(selectedId!), enabled: !!selectedId })
+  const { data: orders, isLoading } = useQuery({ queryKey: ['pedidos'], queryFn: pedidosApi.listar })
+  const { data: order } = useQuery({ queryKey: ['pedido', selectedId], queryFn: () => pedidosApi.obterPorId(selectedId!), enabled: !!selectedId })
 
-  const submitMut = useMutation({ mutationFn: ordersApi.submit, onSuccess: () => { qc.invalidateQueries({ queryKey: ['orders'] }); qc.invalidateQueries({ queryKey: ['order'] }); toast.success('Pedido submetido!') } })
-  const approveMut = useMutation({ mutationFn: ordersApi.approve, onSuccess: () => { qc.invalidateQueries({ queryKey: ['orders'] }); qc.invalidateQueries({ queryKey: ['order'] }); toast.success('Pedido aprovado!') } })
-  const cancelMut = useMutation({ mutationFn: ordersApi.cancel, onSuccess: () => { qc.invalidateQueries({ queryKey: ['orders'] }); qc.invalidateQueries({ queryKey: ['order'] }); toast.success('Pedido cancelado!') } })
+  const submitMut = useMutation({ mutationFn: pedidosApi.enviar, onSuccess: () => { qc.invalidateQueries({ queryKey: ['pedidos'] }); qc.invalidateQueries({ queryKey: ['pedido'] }); toast.success('Pedido submetido!') } })
+  const approveMut = useMutation({ mutationFn: pedidosApi.aprovar, onSuccess: () => { qc.invalidateQueries({ queryKey: ['pedidos'] }); qc.invalidateQueries({ queryKey: ['pedido'] }); toast.success('Pedido aprovado!') } })
+  const cancelMut = useMutation({ mutationFn: pedidosApi.cancelar, onSuccess: () => { qc.invalidateQueries({ queryKey: ['pedidos'] }); qc.invalidateQueries({ queryKey: ['pedido'] }); toast.success('Pedido cancelado!') } })
 
   return (
     <div>
@@ -34,14 +34,14 @@ export default function OrdersPage() {
                   className={`w-full text-left p-4 rounded-xl border transition-colors ${selectedId === o.id ? 'border-accent bg-accent/5' : 'border-border bg-card hover:bg-secondary'}`}>
                   <div className="flex items-center justify-between">
                     <div>
-                      <span className="font-mono font-medium text-sm">{o.code}</span>
-                      <span className="text-muted-foreground text-xs ml-2">({o.type})</span>
+                      <span className="font-mono font-medium text-sm">{o.codigo}</span>
+                      <span className="text-muted-foreground text-xs ml-2">({o.tipo})</span>
                     </div>
                     <StatusBadge status={o.status} />
                   </div>
                   <div className="flex justify-between mt-1 text-xs text-muted-foreground">
-                    <span>{o.createdByName}</span>
-                    <span>{formatDate(o.createdAt)}</span>
+                    <span>{o.nomeCriadoPor}</span>
+                    <span>{formatDate(o.criadoEm)}</span>
                   </div>
                 </button>
               ))}
@@ -54,23 +54,23 @@ export default function OrdersPage() {
           {order ? (
             <div className="bg-card border border-border rounded-xl p-5 space-y-4 sticky top-6">
               <div className="flex items-center justify-between">
-                <h3 className="font-semibold font-mono">{order.code}</h3>
-                <ExportButton url={`/api/orders/${order.id}/export`} filename={`Pedido_${order.code}.xlsx`} label="Excel" />
+                <h3 className="font-semibold font-mono">{order.codigo}</h3>
+                <ExportButton url={`/api/pedidos/${order.id}/export`} filename={`Pedido_${order.codigo}.xlsx`} label="Excel" />
               </div>
               <StatusBadge status={order.status} />
               <div className="text-sm space-y-1">
-                <p><span className="text-muted-foreground">Tipo:</span> {order.type}</p>
-                <p><span className="text-muted-foreground">Criado por:</span> {order.createdByName}</p>
-                {order.approvedByName && <p><span className="text-muted-foreground">Aprovado por:</span> {order.approvedByName}</p>}
+                <p><span className="text-muted-foreground">Tipo:</span> {order.tipo}</p>
+                <p><span className="text-muted-foreground">Criado por:</span> {order.nomeCriadoPor}</p>
+                {order.nomeAprovadoPor && <p><span className="text-muted-foreground">Aprovado por:</span> {order.nomeAprovadoPor}</p>}
               </div>
 
               <div>
-                <h4 className="text-sm font-medium mb-2">Itens ({order.items.length})</h4>
+                <h4 className="text-sm font-medium mb-2">Itens ({order.itens.length})</h4>
                 <div className="space-y-1">
-                  {order.items.map(item => (
+                  {order.itens.map(item => (
                     <div key={item.id} className="flex justify-between text-xs p-2 bg-muted rounded">
-                      <span>{item.productName}</span>
-                      <span className="font-mono">{item.quantityReceived}/{item.quantityApproved ?? item.quantityRequested} {item.unitAbbreviation}</span>
+                      <span>{item.nomeProduto}</span>
+                      <span className="font-mono">{item.quantidadeRecebida}/{item.quantidadeAprovada ?? item.quantidadeSolicitada} {item.siglaUnidade}</span>
                     </div>
                   ))}
                 </div>

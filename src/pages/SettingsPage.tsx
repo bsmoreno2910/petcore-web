@@ -6,22 +6,22 @@ import { useAuthStore } from '@/stores/auth.store'
 import { PageHeader } from '@/components/shared/PageHeader'
 
 export default function SettingsPage() {
-  const { user } = useAuthStore()
-  const [passwords, setPasswords] = useState({ currentPassword: '', newPassword: '', confirmPassword: '' })
+  const { usuario } = useAuthStore()
+  const [passwords, setPasswords] = useState({ senhaAtual: '', novaSenha: '', confirmarSenha: '' })
 
   const changePwMutation = useMutation({
-    mutationFn: () => authApi.changePassword({ currentPassword: passwords.currentPassword, newPassword: passwords.newPassword }),
-    onSuccess: () => { toast.success('Senha alterada com sucesso!'); setPasswords({ currentPassword: '', newPassword: '', confirmPassword: '' }) },
+    mutationFn: () => authApi.alterarSenha(passwords.senhaAtual, passwords.novaSenha),
+    onSuccess: () => { toast.success('Senha alterada com sucesso!'); setPasswords({ senhaAtual: '', novaSenha: '', confirmarSenha: '' }) },
     onError: () => toast.error('Erro ao alterar senha. Verifique a senha atual.'),
   })
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (passwords.newPassword !== passwords.confirmPassword) {
+    if (passwords.novaSenha !== passwords.confirmarSenha) {
       toast.error('As senhas não coincidem.')
       return
     }
-    if (passwords.newPassword.length < 6) {
+    if (passwords.novaSenha.length < 6) {
       toast.error('A nova senha deve ter pelo menos 6 caracteres.')
       return
     }
@@ -38,16 +38,16 @@ export default function SettingsPage() {
           <div className="space-y-3 text-sm">
             <div>
               <label className="text-muted-foreground">Nome</label>
-              <p className="font-medium">{user?.name}</p>
+              <p className="font-medium">{usuario?.nome}</p>
             </div>
             <div>
               <label className="text-muted-foreground">E-mail</label>
-              <p className="font-medium">{user?.email}</p>
+              <p className="font-medium">{usuario?.email}</p>
             </div>
-            {user?.crmv && (
+            {usuario?.crmv && (
               <div>
                 <label className="text-muted-foreground">CRMV</label>
-                <p className="font-medium">{user.crmv}</p>
+                <p className="font-medium">{usuario.crmv}</p>
               </div>
             )}
           </div>
@@ -56,14 +56,14 @@ export default function SettingsPage() {
         <div className="bg-card border border-border rounded-xl p-6">
           <h3 className="font-semibold mb-4">Alterar Senha</h3>
           <form onSubmit={handleSubmit} className="space-y-3">
-            <input type="password" required placeholder="Senha atual *" value={passwords.currentPassword}
-              onChange={e => setPasswords({ ...passwords, currentPassword: e.target.value })}
+            <input type="password" required placeholder="Senha atual *" value={passwords.senhaAtual}
+              onChange={e => setPasswords({ ...passwords, senhaAtual: e.target.value })}
               className="w-full px-3 py-2 border border-input rounded-lg text-sm" />
-            <input type="password" required placeholder="Nova senha *" value={passwords.newPassword}
-              onChange={e => setPasswords({ ...passwords, newPassword: e.target.value })}
+            <input type="password" required placeholder="Nova senha *" value={passwords.novaSenha}
+              onChange={e => setPasswords({ ...passwords, novaSenha: e.target.value })}
               className="w-full px-3 py-2 border border-input rounded-lg text-sm" />
-            <input type="password" required placeholder="Confirmar nova senha *" value={passwords.confirmPassword}
-              onChange={e => setPasswords({ ...passwords, confirmPassword: e.target.value })}
+            <input type="password" required placeholder="Confirmar nova senha *" value={passwords.confirmarSenha}
+              onChange={e => setPasswords({ ...passwords, confirmarSenha: e.target.value })}
               className="w-full px-3 py-2 border border-input rounded-lg text-sm" />
             <button type="submit" disabled={changePwMutation.isPending}
               className="w-full py-2 bg-accent text-white rounded-lg text-sm font-medium hover:opacity-90 disabled:opacity-50">

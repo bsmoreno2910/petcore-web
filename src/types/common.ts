@@ -1,17 +1,15 @@
-export interface PagedResponse<T> {
-  items: T[]
-  totalCount: number
-  page: number
-  pageSize: number
-  totalPages: number
-  hasPreviousPage: boolean
-  hasNextPage: boolean
+export interface RespostaPaginada<T> {
+  itens: T[]
+  totalRegistros: number
+  pagina: number
+  tamanhoPagina: number
+  totalPaginas: number
+  temPaginaAnterior: boolean
+  temProximaPagina: boolean
 }
 
-export interface PagedRequest {
-  page?: number
-  pageSize?: number
-  search?: string
-  sortBy?: string
-  sortDescending?: boolean
+export interface RequisicaoPaginada {
+  pagina?: number
+  tamanhoPagina?: number
+  busca?: string
 }

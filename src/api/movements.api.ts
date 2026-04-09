@@ -1,20 +1,26 @@
 import api from './client'
-import type { PagedResponse } from '@/types/common'
+import type { RespostaPaginada } from '@/types/common'
 
-export interface Movement {
-  id: string; clinicId: string; productId: string; productName: string
-  type: string; quantity: number; previousStock: number; newStock: number
-  reason?: string; notes?: string; createdById: string; createdByName: string
-  approvedById?: string; approvedByName?: string; approvedAt?: string
-  orderId?: string; createdAt: string
+export interface Movimentacao {
+  id: string
+  produtoId: string
+  nomeProduto: string
+  tipo: string
+  quantidade: number
+  estoqueAnterior: number
+  novoEstoque: number
+  motivo?: string
+  observacoes?: string
+  criadoPorId: string
+  nomeCriadoPor: string
+  criadoEm: string
 }
 
-export const movementsApi = {
-  list: (params: Record<string, unknown>) =>
-    api.get<PagedResponse<Movement>>('/api/movements', { params }).then(r => r.data),
-  get: (id: string) => api.get<Movement>(`/api/movements/${id}`).then(r => r.data),
-  entry: (data: Record<string, unknown>) => api.post('/api/movements/entry', data).then(r => r.data),
-  exit: (data: Record<string, unknown>) => api.post('/api/movements/exit', data).then(r => r.data),
-  adjustment: (data: Record<string, unknown>) => api.post('/api/movements/adjustment', data).then(r => r.data),
-  loss: (data: Record<string, unknown>) => api.post('/api/movements/loss', data).then(r => r.data),
+export const movimentacoesApi = {
+  listar: (params: Record<string, unknown>) =>
+    api.get<RespostaPaginada<Movimentacao>>('/api/movimentacoes', { params }).then(r => r.data),
+  entrada: (data: Record<string, unknown>) => api.post('/api/movimentacoes/entrada', data).then(r => r.data),
+  saida: (data: Record<string, unknown>) => api.post('/api/movimentacoes/saida', data).then(r => r.data),
+  ajuste: (data: Record<string, unknown>) => api.post('/api/movimentacoes/ajuste', data).then(r => r.data),
+  perda: (data: Record<string, unknown>) => api.post('/api/movimentacoes/perda', data).then(r => r.data),
 }

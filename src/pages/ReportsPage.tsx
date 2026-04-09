@@ -6,7 +6,7 @@ import {
 import { reportsApi } from '@/api/reports.api'
 import { PageHeader } from '@/components/shared/PageHeader'
 
-interface ReportCard {
+interface CartaoRelatorio {
   title: string
   description: string
   icon: React.ElementType
@@ -15,34 +15,34 @@ interface ReportCard {
   filters?: { key: string; label: string; type: 'date' | 'text' }[]
 }
 
-const reports: ReportCard[] = [
+const relatorios: CartaoRelatorio[] = [
   { title: 'Inventário Atual', description: 'Estoque completo com resumo por categoria', icon: Package, color: 'bg-blue-500', action: reportsApi.inventory },
   { title: 'Movimentações de Estoque', description: 'Entradas, saídas e ajustes por período', icon: ArrowLeftRight, color: 'bg-indigo-500', action: reportsApi.stockMovements,
-    filters: [{ key: 'startDate', label: 'Data início', type: 'date' }, { key: 'endDate', label: 'Data fim', type: 'date' }] },
+    filters: [{ key: 'dataInicio', label: 'Data início', type: 'date' }, { key: 'dataFim', label: 'Data fim', type: 'date' }] },
   { title: 'Atendimentos', description: 'Consultas e procedimentos realizados', icon: Calendar, color: 'bg-cyan-500', action: reportsApi.appointments,
-    filters: [{ key: 'startDate', label: 'Data início', type: 'date' }, { key: 'endDate', label: 'Data fim', type: 'date' }] },
+    filters: [{ key: 'dataInicio', label: 'Data início', type: 'date' }, { key: 'dataFim', label: 'Data fim', type: 'date' }] },
   { title: 'Pacientes', description: 'Cadastro completo de animais', icon: PawPrint, color: 'bg-green-500', action: reportsApi.patients },
   { title: 'Tutores', description: 'Cadastro de proprietários', icon: Users, color: 'bg-teal-500', action: reportsApi.tutors },
   { title: 'Internações', description: 'Internações por período e status', icon: Bed, color: 'bg-yellow-500', action: reportsApi.hospitalizations,
-    filters: [{ key: 'startDate', label: 'Data início', type: 'date' }, { key: 'endDate', label: 'Data fim', type: 'date' }] },
+    filters: [{ key: 'dataInicio', label: 'Data início', type: 'date' }, { key: 'dataFim', label: 'Data fim', type: 'date' }] },
   { title: 'Exames', description: 'Solicitações e resultados de exames', icon: FlaskConical, color: 'bg-purple-500', action: reportsApi.exams,
-    filters: [{ key: 'startDate', label: 'Data início', type: 'date' }, { key: 'endDate', label: 'Data fim', type: 'date' }] },
+    filters: [{ key: 'dataInicio', label: 'Data início', type: 'date' }, { key: 'dataFim', label: 'Data fim', type: 'date' }] },
   { title: 'Receitas', description: 'Receitas por período e categoria', icon: TrendingUp, color: 'bg-green-600', action: reportsApi.financialRevenue,
-    filters: [{ key: 'startDate', label: 'Data início', type: 'date' }, { key: 'endDate', label: 'Data fim', type: 'date' }] },
+    filters: [{ key: 'dataInicio', label: 'Data início', type: 'date' }, { key: 'dataFim', label: 'Data fim', type: 'date' }] },
   { title: 'Despesas', description: 'Despesas por período e categoria', icon: TrendingDown, color: 'bg-red-500', action: reportsApi.financialExpenses,
-    filters: [{ key: 'startDate', label: 'Data início', type: 'date' }, { key: 'endDate', label: 'Data fim', type: 'date' }] },
+    filters: [{ key: 'dataInicio', label: 'Data início', type: 'date' }, { key: 'dataFim', label: 'Data fim', type: 'date' }] },
   { title: 'Fluxo de Caixa', description: 'Receitas x Despesas diárias com saldo', icon: DollarSign, color: 'bg-blue-600', action: reportsApi.financialCashflow,
-    filters: [{ key: 'startDate', label: 'Data início', type: 'date' }, { key: 'endDate', label: 'Data fim', type: 'date' }] },
+    filters: [{ key: 'dataInicio', label: 'Data início', type: 'date' }, { key: 'dataFim', label: 'Data fim', type: 'date' }] },
   { title: 'Inadimplência', description: 'Contas vencidas e devedores', icon: AlertTriangle, color: 'bg-orange-500', action: reportsApi.financialOverdue },
   { title: 'Por Categoria Financeira', description: 'Receitas e despesas agrupadas', icon: PieChart, color: 'bg-pink-500', action: reportsApi.financialByCategory,
-    filters: [{ key: 'startDate', label: 'Data início', type: 'date' }, { key: 'endDate', label: 'Data fim', type: 'date' }] },
+    filters: [{ key: 'dataInicio', label: 'Data início', type: 'date' }, { key: 'dataFim', label: 'Data fim', type: 'date' }] },
   { title: 'Por Tutor', description: 'Faturamento por proprietário', icon: UserCircle, color: 'bg-violet-500', action: reportsApi.financialByTutor,
-    filters: [{ key: 'startDate', label: 'Data início', type: 'date' }, { key: 'endDate', label: 'Data fim', type: 'date' }] },
+    filters: [{ key: 'dataInicio', label: 'Data início', type: 'date' }, { key: 'dataFim', label: 'Data fim', type: 'date' }] },
   { title: 'Centros de Custo', description: 'Custos comparativos por setor', icon: Building2, color: 'bg-slate-600', action: reportsApi.costCenters,
-    filters: [{ key: 'startDate', label: 'Data início', type: 'date' }, { key: 'endDate', label: 'Data fim', type: 'date' }] },
+    filters: [{ key: 'dataInicio', label: 'Data início', type: 'date' }, { key: 'dataFim', label: 'Data fim', type: 'date' }] },
 ]
 
-function ReportCardComponent({ report }: { report: ReportCard }) {
+function CartaoRelatorioComponent({ report }: { report: CartaoRelatorio }) {
   const [loading, setLoading] = useState(false)
   const [showFilters, setShowFilters] = useState(false)
   const [filters, setFilters] = useState<Record<string, string>>({})
@@ -102,7 +102,7 @@ export default function ReportsPage() {
     <div>
       <PageHeader title="Relatórios" description="Exportações em Excel (.xlsx) com formatação profissional" />
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        {reports.map(r => <ReportCardComponent key={r.title} report={r} />)}
+        {relatorios.map(r => <CartaoRelatorioComponent key={r.title} report={r} />)}
       </div>
     </div>
   )

@@ -1,34 +1,58 @@
 import api from './client'
-import type { PagedResponse } from '@/types/common'
+import type { RespostaPaginada } from '@/types/common'
 
-export interface Patient {
-  id: string; clinicId: string; tutorId: string; tutorName: string
-  speciesId: string; speciesName: string; breedId?: string; breedName?: string
-  name: string; sex: string; birthDate?: string; weight?: number
-  color?: string; microchip?: string; neutered: boolean
-  allergies?: string; notes?: string; photoUrl?: string
-  active: boolean; deceased: boolean; createdAt: string
+export interface Paciente {
+  id: string
+  clinicaId: string
+  tutorId: string
+  nomeTutor: string
+  especieId: string
+  nomeEspecie: string
+  racaId?: string
+  nomeRaca?: string
+  nome: string
+  sexo: string
+  dataNascimento?: string
+  peso?: number
+  cor?: string
+  microchip?: string
+  castrado: boolean
+  alergias?: string
+  observacoes?: string
+  fotoUrl?: string
+  ativo: boolean
+  obito: boolean
+  criadoEm: string
 }
 
-export interface PatientDetail extends Patient {
-  tutorPhone?: string; tutorEmail?: string; deceasedAt?: string
+export interface PacienteDetalhe extends Paciente {
+  telefoneTutor?: string
+  emailTutor?: string
+  dataObito?: string
 }
 
-export const patientsApi = {
-  list: (params: Record<string, unknown>) =>
-    api.get<PagedResponse<Patient>>('/api/patients', { params }).then(r => r.data),
-  get: (id: string) =>
-    api.get<PatientDetail>(`/api/patients/${id}`).then(r => r.data),
-  create: (data: Record<string, unknown>) =>
-    api.post('/api/patients', data).then(r => r.data),
-  update: (id: string, data: Record<string, unknown>) =>
-    api.put(`/api/patients/${id}`, data).then(r => r.data),
-  medicalRecords: (id: string) =>
-    api.get(`/api/patients/${id}/medical-records`).then(r => r.data),
-  exams: (id: string) =>
-    api.get(`/api/patients/${id}/exams`).then(r => r.data),
-  hospitalizations: (id: string) =>
-    api.get(`/api/patients/${id}/hospitalizations`).then(r => r.data),
-  timeline: (id: string) =>
-    api.get(`/api/patients/${id}/timeline`).then(r => r.data),
+export interface ItemLinhaTempo {
+  tipo: string
+  data: string
+  id: string
+  descricao: string
+}
+
+export const pacientesApi = {
+  listar: (params: Record<string, unknown>) =>
+    api.get<RespostaPaginada<Paciente>>('/api/pacientes', { params }).then(r => r.data),
+  obterPorId: (id: string) =>
+    api.get<PacienteDetalhe>(`/api/pacientes/${id}`).then(r => r.data),
+  criar: (data: Record<string, unknown>) =>
+    api.post('/api/pacientes', data).then(r => r.data),
+  atualizar: (id: string, data: Record<string, unknown>) =>
+    api.put(`/api/pacientes/${id}`, data).then(r => r.data),
+  listarProntuarios: (id: string) =>
+    api.get(`/api/pacientes/${id}/prontuarios`).then(r => r.data),
+  listarExames: (id: string) =>
+    api.get(`/api/pacientes/${id}/exames`).then(r => r.data),
+  listarInternacoes: (id: string) =>
+    api.get(`/api/pacientes/${id}/internacoes`).then(r => r.data),
+  linhaTempo: (id: string) =>
+    api.get<ItemLinhaTempo[]>(`/api/pacientes/${id}/linha-do-tempo`).then(r => r.data),
 }

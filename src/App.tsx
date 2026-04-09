@@ -1,50 +1,70 @@
+import { lazy, Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { AppLayout } from '@/components/layout/AppLayout'
 import { AuthGuard } from '@/components/layout/AuthGuard'
-import LoginPage from '@/pages/LoginPage'
-import SelectClinicPage from '@/pages/SelectClinicPage'
-import DashboardPage from '@/pages/DashboardPage'
 
-function EmDesenvolvimento({ titulo }: { titulo: string }) {
+// Lazy loading de todas as páginas
+const LoginPage = lazy(() => import('@/pages/LoginPage'))
+const SelectClinicPage = lazy(() => import('@/pages/SelectClinicPage'))
+const DashboardPage = lazy(() => import('@/pages/DashboardPage'))
+const TutorsPage = lazy(() => import('@/pages/TutorsPage'))
+const TutorDetailPage = lazy(() => import('@/pages/TutorDetailPage'))
+const PatientsPage = lazy(() => import('@/pages/PatientsPage'))
+const PatientDetailPage = lazy(() => import('@/pages/PatientDetailPage'))
+const AgendaPage = lazy(() => import('@/pages/AgendaPage'))
+const MedicalRecordsPage = lazy(() => import('@/pages/MedicalRecordsPage'))
+const HospitalizationsPage = lazy(() => import('@/pages/HospitalizationsPage'))
+const ExamsPage = lazy(() => import('@/pages/ExamsPage'))
+const ProductsPage = lazy(() => import('@/pages/ProductsPage'))
+const MovementsPage = lazy(() => import('@/pages/MovementsPage'))
+const OrdersPage = lazy(() => import('@/pages/OrdersPage'))
+const FinancialPage = lazy(() => import('@/pages/FinancialPage'))
+const CostCentersPage = lazy(() => import('@/pages/CostCentersPage'))
+const ReportsPage = lazy(() => import('@/pages/ReportsPage'))
+const UsersPage = lazy(() => import('@/pages/UsersPage'))
+const ClinicsPage = lazy(() => import('@/pages/ClinicsPage'))
+const AuditPage = lazy(() => import('@/pages/AuditPage'))
+const SettingsPage = lazy(() => import('@/pages/SettingsPage'))
+
+function LoadingFallback() {
   return (
     <div className="flex items-center justify-center h-64">
-      <div className="text-center">
-        <h2 className="text-xl font-semibold text-foreground">{titulo}</h2>
-        <p className="text-muted-foreground mt-2">Em desenvolvimento...</p>
-      </div>
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent" />
     </div>
   )
 }
 
 export default function App() {
   return (
-    <Routes>
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/selecionar-clinica" element={<SelectClinicPage />} />
+    <Suspense fallback={<LoadingFallback />}>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/selecionar-clinica" element={<SelectClinicPage />} />
 
-      <Route element={<AuthGuard><AppLayout /></AuthGuard>}>
-        <Route index element={<DashboardPage />} />
-        <Route path="tutores" element={<EmDesenvolvimento titulo="Tutores" />} />
-        <Route path="tutores/:id" element={<EmDesenvolvimento titulo="Detalhe do Tutor" />} />
-        <Route path="pacientes" element={<EmDesenvolvimento titulo="Pacientes" />} />
-        <Route path="pacientes/:id" element={<EmDesenvolvimento titulo="Detalhe do Paciente" />} />
-        <Route path="agenda" element={<EmDesenvolvimento titulo="Agenda" />} />
-        <Route path="prontuarios" element={<EmDesenvolvimento titulo="Prontuários" />} />
-        <Route path="internacoes" element={<EmDesenvolvimento titulo="Internações" />} />
-        <Route path="exames" element={<EmDesenvolvimento titulo="Exames" />} />
-        <Route path="produtos" element={<EmDesenvolvimento titulo="Produtos" />} />
-        <Route path="movimentacoes" element={<EmDesenvolvimento titulo="Movimentações" />} />
-        <Route path="pedidos" element={<EmDesenvolvimento titulo="Pedidos" />} />
-        <Route path="financeiro" element={<EmDesenvolvimento titulo="Financeiro" />} />
-        <Route path="centros-custo" element={<EmDesenvolvimento titulo="Centros de Custo" />} />
-        <Route path="relatorios" element={<EmDesenvolvimento titulo="Relatórios" />} />
-        <Route path="usuarios" element={<EmDesenvolvimento titulo="Usuários" />} />
-        <Route path="clinicas" element={<EmDesenvolvimento titulo="Clínicas" />} />
-        <Route path="auditoria" element={<EmDesenvolvimento titulo="Auditoria" />} />
-        <Route path="configuracoes" element={<EmDesenvolvimento titulo="Configurações" />} />
-      </Route>
+        <Route element={<AuthGuard><AppLayout /></AuthGuard>}>
+          <Route index element={<DashboardPage />} />
+          <Route path="tutores" element={<TutorsPage />} />
+          <Route path="tutores/:id" element={<TutorDetailPage />} />
+          <Route path="pacientes" element={<PatientsPage />} />
+          <Route path="pacientes/:id" element={<PatientDetailPage />} />
+          <Route path="agenda" element={<AgendaPage />} />
+          <Route path="prontuarios" element={<MedicalRecordsPage />} />
+          <Route path="internacoes" element={<HospitalizationsPage />} />
+          <Route path="exames" element={<ExamsPage />} />
+          <Route path="produtos" element={<ProductsPage />} />
+          <Route path="movimentacoes" element={<MovementsPage />} />
+          <Route path="pedidos" element={<OrdersPage />} />
+          <Route path="financeiro" element={<FinancialPage />} />
+          <Route path="centros-custo" element={<CostCentersPage />} />
+          <Route path="relatorios" element={<ReportsPage />} />
+          <Route path="usuarios" element={<UsersPage />} />
+          <Route path="clinicas" element={<ClinicsPage />} />
+          <Route path="auditoria" element={<AuditPage />} />
+          <Route path="configuracoes" element={<SettingsPage />} />
+        </Route>
 
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </Suspense>
   )
 }

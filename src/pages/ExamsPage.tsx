@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
-import { examsApi, type ExamRequest } from '@/api/exams.api'
+import { examesApi, type SolicitacaoExame } from '@/api/exams.api'
 import { PageHeader } from '@/components/shared/PageHeader'
 import { DataTable } from '@/components/shared/DataTable'
 import { StatusBadge } from '@/components/shared/StatusBadge'
@@ -11,18 +11,18 @@ export default function ExamsPage() {
   const [status, setStatus] = useState('')
 
   const { data, isLoading } = useQuery({
-    queryKey: ['exams', page, status],
-    queryFn: () => examsApi.list({ page, pageSize: 20, status: status || undefined }),
+    queryKey: ['exames', page, status],
+    queryFn: () => examesApi.listar({ pagina: page, tamanhoPagina: 20, status: status || undefined }),
   })
 
   const columns = [
-    { key: 'requestedAt', header: 'Data', render: (e: ExamRequest) => formatDate(e.requestedAt) },
-    { key: 'patientName', header: 'Paciente' },
-    { key: 'examTypeName', header: 'Tipo de Exame' },
-    { key: 'examTypeCategory', header: 'Categoria', render: (e: ExamRequest) => e.examTypeCategory || '—' },
-    { key: 'requestedByName', header: 'Solicitante' },
-    { key: 'status', header: 'Status', render: (e: ExamRequest) => <StatusBadge status={e.status} /> },
-    { key: 'result', header: 'Resultado', render: (e: ExamRequest) => e.result ? 'Sim' : '—', className: 'text-center' },
+    { key: 'dataSolicitacao', header: 'Data', render: (e: SolicitacaoExame) => formatDate(e.dataSolicitacao) },
+    { key: 'nomePaciente', header: 'Paciente' },
+    { key: 'nomeTipoExame', header: 'Tipo de Exame' },
+    { key: 'categoriaTipoExame', header: 'Categoria', render: (e: SolicitacaoExame) => e.categoriaTipoExame || '—' },
+    { key: 'nomeSolicitante', header: 'Solicitante' },
+    { key: 'status', header: 'Status', render: (e: SolicitacaoExame) => <StatusBadge status={e.status} /> },
+    { key: 'resultado', header: 'Resultado', render: (e: SolicitacaoExame) => e.resultado ? 'Sim' : '—', className: 'text-center' },
   ]
 
   return (
@@ -39,8 +39,8 @@ export default function ExamsPage() {
           <option value="Cancelled">Cancelados</option>
         </select>
       </div>
-      <DataTable columns={columns} data={data?.items ?? []} page={page}
-        totalPages={data ? Math.ceil(data.totalCount / data.pageSize) : 1}
+      <DataTable columns={columns} data={data?.itens ?? []} page={page}
+        totalPages={data ? Math.ceil(data.totalRegistros / data.tamanhoPagina) : 1}
         onPageChange={setPage} loading={isLoading} />
     </div>
   )

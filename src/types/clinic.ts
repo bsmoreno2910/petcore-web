@@ -1,29 +1,29 @@
-export interface Clinic {
+export interface Clinica {
   id: string
-  name: string
-  tradeName?: string
-  legalName?: string
+  nome: string
+  nomeFantasia?: string
+  razaoSocial?: string
   cnpj?: string
-  phone?: string
+  telefone?: string
   email?: string
   website?: string
   logoUrl?: string
-  street?: string
-  number?: string
-  complement?: string
-  neighborhood?: string
-  city?: string
-  state?: string
-  zipCode?: string
-  active: boolean
-  createdAt: string
+  rua?: string
+  numero?: string
+  complemento?: string
+  bairro?: string
+  cidade?: string
+  estado?: string
+  cep?: string
+  ativa: boolean
+  criadoEm: string
 }
 
-export interface ClinicUser {
+export interface ClinicaUsuario {
   id: string
-  userId: string
-  userName: string
-  userEmail: string
-  role: string
-  active: boolean
+  usuarioId: string
+  nomeUsuario: string
+  emailUsuario: string
+  perfil: string
+  ativo: boolean
 }

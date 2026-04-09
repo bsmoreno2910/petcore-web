@@ -1,41 +1,63 @@
 import api from './client'
-import type { PagedResponse } from '@/types/common'
+import type { RespostaPaginada } from '@/types/common'
 
-export interface Appointment {
-  id: string; clinicId: string; patientId: string; patientName: string
-  tutorName: string; tutorPhone?: string; speciesName: string
-  veterinarianId?: string; veterinarianName?: string
-  type: string; status: string; scheduledAt: string; durationMinutes: number
-  startedAt?: string; finishedAt?: string; reason?: string; notes?: string
-  cancellationReason?: string; createdAt: string
+export interface Agendamento {
+  id: string
+  clinicaId: string
+  pacienteId: string
+  nomePaciente: string
+  nomeTutor: string
+  telefoneTutor?: string
+  nomeEspecie: string
+  veterinarioId?: string
+  nomeVeterinario?: string
+  tipo: string
+  status: string
+  dataHoraAgendada: string
+  duracaoMinutos: number
+  iniciadoEm?: string
+  finalizadoEm?: string
+  motivo?: string
+  observacoes?: string
+  motivoCancelamento?: string
+  criadoEm: string
 }
 
-export interface CalendarEvent {
-  id: string; title: string; start: string; end: string
-  color?: string; status: string; type: string
-  patientId: string; veterinarianId?: string
+export interface EventoCalendario {
+  id: string
+  titulo: string
+  inicio: string
+  fim: string
+  cor?: string
+  tipo: string
+  status: string
+  pacienteId: string
+  veterinarioId?: string
 }
 
-export interface AvailableSlot { start: string; end: string }
+export interface HorarioDisponivel {
+  inicio: string
+  fim: string
+}
 
-export const appointmentsApi = {
-  list: (params: Record<string, unknown>) =>
-    api.get<PagedResponse<Appointment>>('/api/appointments', { params }).then(r => r.data),
-  calendar: (startDate: string, endDate: string) =>
-    api.get<CalendarEvent[]>('/api/appointments/calendar', { params: { startDate, endDate } }).then(r => r.data),
-  get: (id: string) =>
-    api.get<Appointment>(`/api/appointments/${id}`).then(r => r.data),
-  create: (data: Record<string, unknown>) =>
-    api.post('/api/appointments', data).then(r => r.data),
-  update: (id: string, data: Record<string, unknown>) =>
-    api.put(`/api/appointments/${id}`, data).then(r => r.data),
-  confirm: (id: string) => api.patch(`/api/appointments/${id}/confirm`).then(r => r.data),
-  checkIn: (id: string) => api.patch(`/api/appointments/${id}/check-in`).then(r => r.data),
-  start: (id: string) => api.patch(`/api/appointments/${id}/start`).then(r => r.data),
-  complete: (id: string) => api.patch(`/api/appointments/${id}/complete`).then(r => r.data),
-  cancel: (id: string, reason?: string) =>
-    api.patch(`/api/appointments/${id}/cancel`, { cancellationReason: reason }).then(r => r.data),
-  noShow: (id: string) => api.patch(`/api/appointments/${id}/no-show`).then(r => r.data),
-  availableSlots: (veterinarianId: string, date: string) =>
-    api.get<AvailableSlot[]>('/api/appointments/available-slots', { params: { veterinarianId, date } }).then(r => r.data),
+export const agendamentosApi = {
+  listar: (params: Record<string, unknown>) =>
+    api.get<RespostaPaginada<Agendamento>>('/api/agendamentos', { params }).then(r => r.data),
+  calendario: (dataInicio: string, dataFim: string) =>
+    api.get<EventoCalendario[]>('/api/agendamentos/calendario', { params: { dataInicio, dataFim } }).then(r => r.data),
+  obterPorId: (id: string) =>
+    api.get<Agendamento>(`/api/agendamentos/${id}`).then(r => r.data),
+  criar: (data: Record<string, unknown>) =>
+    api.post('/api/agendamentos', data).then(r => r.data),
+  atualizar: (id: string, data: Record<string, unknown>) =>
+    api.put(`/api/agendamentos/${id}`, data).then(r => r.data),
+  confirmar: (id: string) => api.patch(`/api/agendamentos/${id}/confirmar`).then(r => r.data),
+  checkin: (id: string) => api.patch(`/api/agendamentos/${id}/checkin`).then(r => r.data),
+  iniciar: (id: string) => api.patch(`/api/agendamentos/${id}/iniciar`).then(r => r.data),
+  concluir: (id: string) => api.patch(`/api/agendamentos/${id}/concluir`).then(r => r.data),
+  cancelar: (id: string, motivoCancelamento?: string) =>
+    api.patch(`/api/agendamentos/${id}/cancelar`, { motivoCancelamento }).then(r => r.data),
+  faltou: (id: string) => api.patch(`/api/agendamentos/${id}/faltou`).then(r => r.data),
+  horariosDisponiveis: (veterinarioId: string, data: string, duracao?: number) =>
+    api.get<HorarioDisponivel[]>('/api/agendamentos/horarios-disponiveis', { params: { veterinarioId, data, duracao } }).then(r => r.data),
 }
